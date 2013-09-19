@@ -6,12 +6,12 @@ all: $(TARG).pdf
 
 see: $(TARG).see
 
-%.pdf: %.tex makefile
+%.pdf: %.tex Makefile
 	pdflatex $*.tex
 
 # --poly is default for lhs2TeX
 
-%.tex: %.lhs macros.tex mine.fmt makefile
+%.tex: %.lhs macros.tex mine.fmt Makefile
 	lhs2TeX -o $*.tex $*.lhs
 
 showpdf = open -a Skim.app

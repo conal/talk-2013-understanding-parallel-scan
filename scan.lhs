@@ -68,7 +68,8 @@
 \nc\sums{\Varid{sums}}
 
 \nc\trans[1]{\\[1.3ex] #1 \\[0.75ex]}
-\nc\ptrans[1]{\pause\trans{#1}\pause}
+\nc\ptrans[1]{\pause\trans{#1}}
+\nc\ptransp[1]{\ptrans{#1}\pause}
 
 \nc\pitem{\pause \item}
 
@@ -136,17 +137,15 @@ Linear \emph{dependency chain} thwarts parallelism (depth $<$ work).
 \[
 \begin{array}{c}
 \vox{a_1, \ldots, a_n, b_1, \ldots, b_n}
-\ptrans{\arr{split}}
+\ptransp{\arr{split}}
 \vox{a_1, \ldots, a_n}
 \ 
 \vox{b_1, \ldots, b_n}
-% \ptrans{\Downarrow \sums \hspace{3ex} \sums \Downarrow}
-\ptrans{\arr{sums} \hspace{12ex} \arr{sums}}
+\ptransp{\arr{sums} \hspace{12ex} \arr{sums}}
 \tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
 \ 
 \tvox{b'_1, \ldots, b'_n}{b'_{n+1}}
-% \ptrans{\Downarrow}
-\ptrans{\arr{merge}}
+\ptransp{\arr{merge}}
 \tvox{a'_1, \ldots, a'_n, a'_{n+1} + b'_1, \ldots, a'_{n+1} + b'_n}{a'_{n+1}+b'_{n+1}}
 \end{array}
 \]
@@ -164,20 +163,20 @@ Depends on cost of splitting and merging.
 \begin{itemize}
 \pitem Constant:
  \begin{align*}
- D(2 \, m) &= D(m) + c \\
+ D(n) &= D(n/2) + c \\
  D(n) &= O(\log n)
  \end{align*}
 
 \pitem Linear:
  \begin{align*}
-  D(2 \, m) &= D(m) + c \, m \\
+  D(n) &= D(n/2) + c \, n \\
   D(2^k) &= (1 + 2 + 4 + \cdots + 2^{k-1}) \cdot c = O(2^k) \\
   D(n) &= O(n)
  \end{align*}
 
 \pitem Logarithmic:
  \begin{align*}
-  D(2 \, m) &= D(m) + c \, \log m \\
+  D(n) &= D(n/2) + c \, \log n \\
   D(2^k) &= (0 + 1 + 2 + \cdots + k-1) \cdot c = O(k^2) \\
   D(n) &= O(\log^2 n)
  \end{align*}
@@ -186,7 +185,7 @@ Depends on cost of splitting and merging.
 
 \framet{Work analysis}{
 Work recurrence:
-\[ W(2 \, n) = 2 \, W(n) + c' \, n \]
+\[ W(n) = 2 \, W(n/2) + c' \, n \]
 
 \pause
 By the \href{http://en.wikipedia.org/wiki/Master_theorem}{\emph{Master Theorem}},
@@ -208,5 +207,152 @@ By the \href{http://en.wikipedia.org/wiki/Master_theorem}{\emph{Master Theorem}}
 \pitem Can we get $O(n)$ work and $O(\log n)$ depth?
 \end{itemize}
 }
+
+\nc\case[2]{#2 & \text{if~} #1 \\}
+\nc\mtCase[2]{\case{O(#2)}{a #1 b^d}}
+
+\framet{Master Theorem}{
+Given a recurrence:
+\[ f(n) = a \, f(n/b) + c \, n^d \]
+We have the following closed form bound:
+\[ 
+f(n) = \begin{cases}
+ \mtCase{<}{n^d}
+ \mtCase{=}{n^d \, \log n}
+ \mtCase{>}{n^{\log_b a}}
+\end{cases}
+\]
+\vspace{5.4ex} % to align with next slide
+}
+
+\nc\mtCaseo[2]{\case{O(#2)}{a #1 b}}
+
+\framet{Simplified Master Theorem ($d=1$)}{
+Given a recurrence:
+\[ f(n) = a \, f(n/b) + c \, n \]
+We have the following closed form bound:
+\[ 
+f(n) = \begin{cases}
+ \mtCaseo{<}{n}
+ \mtCaseo{=}{n \, \log n}
+ \mtCaseo{>}{n^{\log_b a}}
+\end{cases}
+\]
+
+\ \pause
+
+\emph{Puzzle:} how to get $a < b$ for our recurrence?
+\[ W(n) = 2 \, W(n/2) + c' \, n \]
+Return to this question later.
+}
+
+\framet{Aesthetic quibble}{
+The divide-and-conquer algorithm:
+\[
+\begin{array}{c}
+\vox{a_1, \ldots, a_n, b_1, \ldots, b_n}
+\trans{\arr{split}}
+\vox{a_1, \ldots, a_n}
+\ 
+\vox{b_1, \ldots, b_n}
+\trans{\arr{sums} \hspace{12ex} \arr{sums}}
+\tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
+\ 
+\tvox{b'_1, \ldots, b'_n}{b'_{n+1}}
+\trans{\arr{merge}}
+\tvox{a'_1, \ldots, a'_n, b''_1, \ldots, b''_n}{b''_{n+1}}
+\end{array}
+\]
+where
+\[ b''_i = a'_{n+1}+b'_i \]
+
+\ \pause
+Note the asymmetry: adjust the $b'_i$ but not the $a'_i$.
+}
+
+\framet{Variation: three-way split/merge}{
+\[
+\begin{array}{c}
+\vox{a_1, \ldots, a_n, b_1, \ldots, b_n, c_1, \ldots, c_n}
+\ptrans{\arr{split}}
+\vox{a_1, \ldots, a_n}
+\ 
+\vox{b_1, \ldots, b_n}
+\ 
+\vox{c_1, \ldots, c_n}
+\ptrans{\arr{sums} \hspace{12ex} \arr{sums} \hspace{12ex} \arr{sums}}
+\tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
+\ 
+\tvox{b'_1, \ldots, b'_n}{b'_{n+1}}
+\ 
+\tvox{c'_1, \ldots, c'_n}{c'_{n+1}}
+\ptrans{\arr{merge}}
+\tvox{a'_1, \ldots, a'_n , b''_1, \ldots, b''_n, c''_1, \ldots, c''_n}{c''_{n+1}}
+\end{array}
+\]
+where
+\begin{align*}
+b''_i&= a'_{n+1}+b'_i  \\
+c''_i&= a'_{n+1}+b'_{n+1}+c'_i 
+\end{align*}
+}
+
+\framet{Variation: four-way split/merge}{
+\[
+\begin{array}{c}
+\vox{a_1, \ldots, a_n, b_1, \ldots, b_n, c_1, \ldots, c_n, d_1, \ldots, d_n}
+\ptrans{\arr{split}}
+\vox{a_1, \ldots, a_n}
+\ 
+\vox{b_1, \ldots, b_n}
+\ 
+\vox{c_1, \ldots, c_n}
+\ 
+\vox{d_1, \ldots, d_n}
+\ptrans{\arr{sums} \hspace{12ex} \arr{sums} \hspace{12ex} \arr{sums} \hspace{12ex} \arr{sums}}
+\tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
+\ 
+\tvox{b'_1, \ldots, b'_n}{b'_{n+1}}
+\ 
+\tvox{c'_1, \ldots, c'_n}{c'_{n+1}}
+\ 
+\tvox{d'_1, \ldots, d'_n}{d'_{n+1}}
+\ptrans{\arr{merge}}
+\tvox{a'_1, \ldots, a'_n , b''_1, \ldots, b''_n, c''_1, \ldots, c''_n, d''_1, \ldots, d''_n}{d''_{n+1}}
+\end{array}
+\]
+where
+\begin{align*}
+b''_i&= a'_{n+1}+b'_i \\
+c''_i&= a'_{n+1}+b'_{n+1}+c'_i \\
+d''_i&= a'_{n+1}+b'_{n+1}+c'_{n+1}+d'_i
+\end{align*}
+}
+
+\framet{Multi-way merge}{
+\[
+\begin{array}{c}
+\tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
+\ 
+\tvox{b'_1, \ldots, b'_n}{b'_{n+1}}
+\ 
+\tvox{c'_1, \ldots, c'_n}{c'_{n+1}}
+\ 
+\tvox{d'_1, \ldots, d'_n}{d'_{n+1}}
+\ptrans{\arr{merge}}
+\tvox{a''_1, \ldots, a''_n , b''_1, \ldots, b''_n, c''_1, \ldots, c''_n, d''_1, \ldots, d''_n}{d''_{n+1}}
+\end{array}
+\]
+\pause where
+\begin{align*}
+a''_i &= 0 + a'_i \\
+b''_i &= a'_{n+1} + b'_i \\
+c''_i &= (a'_{n+1}+b'_{n+1}) + c'_i \\
+d''_i &= (a'_{n+1}+b'_{n+1}+c'_{n+1}) + d'_i \\
+\end{align*}
+\pause
+Where have we seen this pattern of shifts?
+}
+
 
 \end{document}

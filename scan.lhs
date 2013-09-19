@@ -56,10 +56,14 @@
 \nc\half[1]{{#1}/2}
 \nc\cl{c_l}
 \nc\ch{c_h}
-\nc\bboxed[1]{\boxed{#1}}
-\nc\tboxed[2]{{\bboxed{#1}\,}^{#2}}
-\nc\tvox[2]{\tboxed{\rule{0pt}{2ex}#1}{#2}}
-\nc\vox[1]{\tvox{#1}{}}
+
+% \nc\tboxed[2]{{\boxed{#1}\,}^{#2}}
+% \nc\tvox[2]{\tboxed{\rule{0pt}{2ex}#1}{#2}}
+% \nc\vox[1]{\tvox{#1}{}}
+
+\nc\bboxed[1]{\boxed{\rule[-0.75ex]{0pt}{2.4ex}#1}}
+\nc\vox[1]{\bboxed{#1}}
+\nc\tvox[2]{\vox{#1}\vox{#2}}
 
 \nc\sums{\Varid{sums}}
 
@@ -88,10 +92,10 @@ where
 \end{center}
 
 \vspace{2ex}\pause
-Quadratic work.
+Work: quadratic.
 
 \pause
-But linear dependency depth (ideal ``time'').
+Time: quadratic, linear, logarithmic.
 }
 
 \framet{As a recurrence}{
@@ -117,9 +121,11 @@ a'_{i+1} = a'_i + a_i
 \end{center}
 
 \vspace{2ex} \pause
-Linear depth \emph{and} work.
+Work: linear.
 
 \pause
+\emph{Depth} (ideal ``time''): linear.
+
 Linear \emph{dependency chain} thwarts parallelism (depth $<$ work).
 }
 
@@ -147,7 +153,7 @@ Linear \emph{dependency chain} thwarts parallelism (depth $<$ work).
 
 \begin{itemize}
 \pitem Why is this definition equivalent?
-       \pause Associativity!
+       \pause (Associativity.)
 \pitem No more linear dependency chain.
 \pitem Work and depth analysis?
 \end{itemize}

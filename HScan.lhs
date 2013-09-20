@@ -95,3 +95,5 @@ Left scan class:
 >      (tots ,ts')  = unzip (fmap lscan ts)
 >      (tots',tot)  = lscan tots
 >      adjust (p,t) = fmap (p `mappend`) t
+
+Working here. Doesn't type-check.

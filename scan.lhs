@@ -61,7 +61,7 @@
 % \nc\tvox[2]{\tboxed{\rule{0pt}{2ex}#1}{#2}}
 % \nc\vox[1]{\tvox{#1}{}}
 
-\nc\bboxed[1]{\boxed{\rule[-0.75ex]{0pt}{2.4ex}#1}}
+\nc\bboxed[1]{\boxed{\rule[-0.9ex]{0pt}{2.4ex}#1}}
 \nc\vox[1]{\bboxed{#1}}
 \nc\tvox[2]{\vox{#1}\vox{#2}}
 
@@ -209,7 +209,7 @@ By the \href{http://en.wikipedia.org/wiki/Master_theorem}{\emph{Master Theorem}}
 }
 
 \nc\case[2]{#2 & \text{if~} #1 \\}
-\nc\mtCase[2]{\case{O(#2)}{a #1 b^d}}
+\nc\mtCase[2]{\case{a #1 b^d}{O(#2)}}
 
 \framet{Master Theorem}{
 Given a recurrence:
@@ -225,7 +225,7 @@ f(n) = \begin{cases}
 \vspace{5.4ex} % to align with next slide
 }
 
-\nc\mtCaseo[2]{\case{O(#2)}{a #1 b}}
+\nc\mtCaseo[2]{\case{a #1 b}{O(#2)}}
 
 \framet{Simplified Master Theorem ($d=1$)}{
 Given a recurrence:
@@ -246,6 +246,7 @@ f(n) = \begin{cases}
 Return to this question later.
 }
 
+\hidden{
 \framet{Aesthetic quibble}{
 The divide-and-conquer algorithm:
 \[
@@ -268,6 +269,7 @@ where
 
 \ \pause
 Note the asymmetry: adjust the $b'_i$ but not the $a'_i$.
+}
 }
 
 \framet{Variation: three-way split/merge}{
@@ -350,8 +352,34 @@ b''_i &= a'_{n+1} + b'_i \\
 c''_i &= (a'_{n+1}+b'_{n+1}) + c'_i \\
 d''_i &= (a'_{n+1}+b'_{n+1}+c'_{n+1}) + d'_i \\
 \end{align*}
+
 \pause
-Where have we seen this pattern of shifts?
+\vspace{-3ex} % Why??
+\emph{Where have we seen this pattern of shifts?}
+}
+
+\nc\sdots[1]{\hspace{#1} \ldots \hspace{#1}}
+
+\framet{$k$-way split/merge}{
+\[
+\begin{array}{c}
+\vox{a_{1,1}, \ldots, a_{1,m},  \ldots,  a_{k,1}, \ldots, a_{k,m}}
+\ptrans{\arr{split}}
+\vox{a_{1,1}, \ldots, a_{1,m}} \sdots{3ex} \vox{a_{k,1}, \ldots, a_{k,m}}
+\ptrans{\arr{sums} \sdots{6ex} \arr{sums}}
+\tvox{a'_{1,1}, \ldots, a'_{1,m}}{a'_{1,m+1}} \sdots{3ex} \tvox{a'_{k,1}, \ldots, a'_{k,m}}{a'_{k,m+1}}
+\ptrans{\arr{merge}}
+\tvox{a''_{1,1}, \ldots, a''_{1,m}, \ldots, a''_{k,1}, \ldots, a''_{k,m}}{b'_{k+1}}
+\end{array}
+\]
+where
+\begin{align*}
+\tvox{b'_1,\ldots,b'_k}{b'_{k+1}} &= \sums\left({\vox{a'_{1,m+1},\ldots,a'_{k,m+1}}}\right) \\
+a''_{i,j} &= b'_j + a'_{i,j}
+\end{align*}
+
+\emph{Working here:} change primes to successive letters.
+
 }
 
 

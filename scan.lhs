@@ -19,7 +19,8 @@
 %include greek.fmt
 %include mine.fmt
 
-\title{High-level algorithm design for reschedulable computation, Part 1}
+% \title{High-level algorithm design for reschedulable computation, Part 1}
+\title{Understanding efficient parallel scan}
 \author{\href{http://conal.net}{Conal Elliott}}
 \institute{\href{http://tabula.com/}{Tabula}}
 % Abbreviate date/venue to fit in infolines space
@@ -61,7 +62,7 @@
 % \nc\tvox[2]{\tboxed{\rule{0pt}{2ex}#1}{#2}}
 % \nc\vox[1]{\tvox{#1}{}}
 
-\nc\bboxed[1]{\boxed{\rule[-0.9ex]{0pt}{2.4ex}#1}}
+\nc\bboxed[1]{\boxed{\rule[-0.9ex]{0pt}{2.6ex}#1}}
 \nc\vox[1]{\bboxed{#1}}
 \nc\tvox[2]{\vox{#1}\vox{#2}}
 
@@ -367,18 +368,16 @@ d''_i &= (a'_{n+1}+b'_{n+1}+c'_{n+1}) + d'_i \\
 \ptrans{\arr{split}}
 \vox{a_{1,1}, \ldots, a_{1,m}} \sdots{3ex} \vox{a_{k,1}, \ldots, a_{k,m}}
 \ptrans{\arr{sums} \sdots{6ex} \arr{sums}}
-\tvox{a'_{1,1}, \ldots, a'_{1,m}}{a'_{1,m+1}} \sdots{3ex} \tvox{a'_{k,1}, \ldots, a'_{k,m}}{a'_{k,m+1}}
+\tvox{b_{1,1}, \ldots, b_{1,m}}{b_{1,m+1}} \sdots{3ex} \tvox{b_{k,1}, \ldots, b_{k,m}}{b_{k,m+1}}
 \ptrans{\arr{merge}}
-\tvox{a''_{1,1}, \ldots, a''_{1,m}, \ldots, a''_{k,1}, \ldots, a''_{k,m}}{b'_{k+1}}
+\tvox{d_{1,1}, \ldots, d_{1,m}, \ldots, d_{k,1}, \ldots, d_{k,m}}{c_{k+1}}
 \end{array}
 \]
 where
 \begin{align*}
-\tvox{b'_1,\ldots,b'_k}{b'_{k+1}} &= \sums\left({\vox{a'_{1,m+1},\ldots,a'_{k,m+1}}}\right) \\
-a''_{i,j} &= b'_j + a'_{i,j}
+\tvox{c_1,\ldots,c_k}{c_{k+1}} &= \sums\left({\vox{b_{1,m+1},\ldots,b_{k,m+1}}}\right) \\
+d_{i,j} &= c_j + b_{i,j}
 \end{align*}
-
-\emph{Working here:} change primes to successive letters.
 
 }
 

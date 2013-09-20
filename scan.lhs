@@ -62,7 +62,7 @@
 % \nc\tvox[2]{\tboxed{\rule{0pt}{2ex}#1}{#2}}
 % \nc\vox[1]{\tvox{#1}{}}
 
-\nc\bboxed[1]{\boxed{\rule[-0.9ex]{0pt}{2.6ex}#1}}
+\nc\bboxed[1]{\boxed{\rule[-0.9ex]{0pt}{2.8ex}#1}}
 \nc\vox[1]{\bboxed{#1}}
 \nc\tvox[2]{\vox{#1}\vox{#2}}
 
@@ -83,21 +83,23 @@
 \begin{array}{c}
 \vox{a_1, \ldots, a_n}
 \trans{\sums\Downarrow}
-\tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
+\tvox{b_1, \ldots, b_n}{b_{n+1}}
 \end{array}
 \]
 \end{minipage}
 where
 \begin{minipage}[c]{0.3\textwidth}
-\[ a'_i = \sum\limits_{1 \le k < i}{a_k} \]
+\[ b_k = \sum\limits_{1 \le i < k}{a_i} \]
 \end{minipage}
 \end{center}
 
 \vspace{2ex}\pause
-Work: quadratic.
+\emph{Work:} quadratic.
 
 \pause
-Time: quadratic, linear, logarithmic.
+\emph{Time:} \pause quadratic, linear, logarithmic.
+
+\vspace{8ex}
 }
 
 \framet{As a recurrence}{
@@ -107,27 +109,28 @@ Time: quadratic, linear, logarithmic.
 \begin{array}{c}
 \vox{a_1, \ldots, a_n}
 \trans{\sums\Downarrow}
-\tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
+\tvox{b_1, \ldots, b_n}{b_{n+1}}
 \end{array}
 \]
 \end{minipage}
 where
 \begin{minipage}[c]{0.3\textwidth}
-\[
-\begin{array}{ll}
-a'_1 = 0 \\
-a'_{i+1} = a'_i + a_i
-\end{array}
-\]
+\begin{align*}
+b_1 &= 0 \\
+b_{k+1} &= b_k + a_k
+\end{align*}
 \end{minipage}
 \end{center}
 
 \vspace{2ex} \pause
-Work: linear.
+\emph{Work:} linear.
 
 \pause
-\emph{Depth} (ideal ``time''): linear.
+\emph{Depth} (ideal parallel ``time''): linear.
 
+\ 
+
+\pause
 Linear \emph{dependency chain} thwarts parallelism (depth $<$ work).
 }
 
@@ -137,22 +140,22 @@ Linear \emph{dependency chain} thwarts parallelism (depth $<$ work).
 \pause
 \[
 \begin{array}{c}
-\vox{a_1, \ldots, a_n, b_1, \ldots, b_n}
+\vox{a_1, \ldots, a_n, a'_1, \ldots, a'_n}
 \ptransp{\arr{split}}
 \vox{a_1, \ldots, a_n}
 \ 
-\vox{b_1, \ldots, b_n}
+\vox{a'_1, \ldots, a'_n}
 \ptransp{\arr{sums} \hspace{12ex} \arr{sums}}
-\tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
+\tvox{b_1, \ldots, b_n}{b_{n+1}}
 \ 
 \tvox{b'_1, \ldots, b'_n}{b'_{n+1}}
 \ptransp{\arr{merge}}
-\tvox{a'_1, \ldots, a'_n, a'_{n+1} + b'_1, \ldots, a'_{n+1} + b'_n}{a'_{n+1}+b'_{n+1}}
+\tvox{b_1, \ldots, b_n, b_{n+1} + b'_1, \ldots, b_{n+1} + b'_n}{b_{n+1}+b'_{n+1}}
 \end{array}
 \]
 
 \begin{itemize}
-\pitem Why is this definition equivalent?
+\pitem Equivalent? Why?
        \pause (Associativity.)
 \pitem No more linear dependency chain.
 \pitem Work and depth analysis?
@@ -171,14 +174,14 @@ Depends on cost of splitting and merging.
 \pitem Linear:
  \begin{align*}
   D(n) &= D(n/2) + c \, n \\
-  D(2^k) &= (1 + 2 + 4 + \cdots + 2^{k-1}) \cdot c = O(2^k) \\
+  D(2^k) &= (1 + 2 + 4 + \cdots + 2^k) \cdot c = O(2^k) \\
   D(n) &= O(n)
  \end{align*}
 
 \pitem Logarithmic:
  \begin{align*}
   D(n) &= D(n/2) + c \, \log n \\
-  D(2^k) &= (0 + 1 + 2 + \cdots + k-1) \cdot c = O(k^2) \\
+  D(2^k) &= (0 + 1 + 2 + \cdots + k) \cdot c = O(k^2) \\
   D(n) &= O(\log^2 n)
  \end{align*}
 \end{itemize}
@@ -188,25 +191,29 @@ Depends on cost of splitting and merging.
 Work recurrence:
 \[ W(n) = 2 \, W(n/2) + c' \, n \]
 
+\vspace{4ex}
+
 \pause
 By the \href{http://en.wikipedia.org/wiki/Master_theorem}{\emph{Master Theorem}},
 \[ W(n) = O(n \, \log n) \]
 }
 
 \framet{Analysis summary}{
-
+Sequential:
 \begin{align*}
- D(n) &= O(\log n) \hidden{\text{\hspace{4ex} (or \ldots)}} \\[2ex]
+ D(n) &= O(n) \\
+ W(n) &= O(n)
+\end{align*}
+
+\ \pause
+
+Divide and conquer:
+\begin{align*}
+ D(n) &= O(\log n) \\
  W(n) &= O(n \, \log n)
 \end{align*}
 
-\ 
-
-\pause Note:
-\begin{itemize}
-\item The sequential version does $O(n)$ work in $O(n)$ depth.
-\pitem Can we get $O(n)$ work and $O(\log n)$ depth?
-\end{itemize}
+\vspace{3ex}\pause Can we get $O(n)$ work and $O(\log n)$ depth?
 }
 
 \nc\case[2]{#2 & \text{if~} #1 \\}
@@ -223,12 +230,13 @@ f(n) = \begin{cases}
  \mtCase{>}{n^{\log_b a}}
 \end{cases}
 \]
-\vspace{5.4ex} % to align with next slide
+\ 
+\vspace{15.8ex} % to align with next slide
 }
 
 \nc\mtCaseo[2]{\case{a #1 b}{O(#2)}}
 
-\framet{Simplified Master Theorem ($d=1$)}{
+\framet{Master Theorem ($d=1$)}{
 Given a recurrence:
 \[ f(n) = a \, f(n/b) + c \, n \]
 We have the following closed form bound:
@@ -273,113 +281,187 @@ Note the asymmetry: adjust the $b'_i$ but not the $a'_i$.
 }
 }
 
-\framet{Variation: three-way split/merge}{
+\framet{Variation: $3$-way split/merge}{
+\vspace{-1ex}
 \[
 \begin{array}{c}
-\vox{a_1, \ldots, a_n, b_1, \ldots, b_n, c_1, \ldots, c_n}
+\vox{a_{1,1}, \ldots, a_{1,m}, a_{2,1}, \ldots, a_{2,m}, a_{3,1}, \ldots, a_{3,m}}
 \ptrans{\arr{split}}
-\vox{a_1, \ldots, a_n}
+\vox{a_{1,1}, \ldots, a_{1,m}}
 \ 
-\vox{b_1, \ldots, b_n}
+\vox{a_{2,1}, \ldots, a_{2,m}}
 \ 
-\vox{c_1, \ldots, c_n}
+\vox{a_{3,1}, \ldots, a_{3,m}}
 \ptrans{\arr{sums} \hspace{12ex} \arr{sums} \hspace{12ex} \arr{sums}}
-\tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
+\tvox{b_{1,1}, \ldots, b_{1,m}}{b_{1,m+1}}
 \ 
-\tvox{b'_1, \ldots, b'_n}{b'_{n+1}}
+\tvox{b_{2,1}, \ldots, b_{2,m}}{b_{2,m+1}}
 \ 
-\tvox{c'_1, \ldots, c'_n}{c'_{n+1}}
+\tvox{b_{3,1}, \ldots, b_{3,m}}{b_{3,m+1}}
 \ptrans{\arr{merge}}
-\tvox{a'_1, \ldots, a'_n , b''_1, \ldots, b''_n, c''_1, \ldots, c''_n}{c''_{n+1}}
+\tvox{d_{1,1}, \ldots, d_{1,m} , d_{2,1}, \ldots, d_{2,m}, d_{3,1}, \ldots, d_{3,m}}{d_{3,m+1}}
 \end{array}
 \]
 where
 \begin{align*}
-b''_i&= a'_{n+1}+b'_i  \\
-c''_i&= a'_{n+1}+b'_{n+1}+c'_i 
+d_{1,j}&= b_{1,j} \\
+d_{2,j}&= b_{1,m+1}+b_{2,j} \\
+d_{3,j}&= b_{1,m+1}+b_{2,m+1}+b_{3,j} \\
 \end{align*}
 }
 
-\framet{Variation: four-way split/merge}{
-\[
-\begin{array}{c}
-\vox{a_1, \ldots, a_n, b_1, \ldots, b_n, c_1, \ldots, c_n, d_1, \ldots, d_n}
-\ptrans{\arr{split}}
-\vox{a_1, \ldots, a_n}
-\ 
-\vox{b_1, \ldots, b_n}
-\ 
-\vox{c_1, \ldots, c_n}
-\ 
-\vox{d_1, \ldots, d_n}
-\ptrans{\arr{sums} \hspace{12ex} \arr{sums} \hspace{12ex} \arr{sums} \hspace{12ex} \arr{sums}}
-\tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
-\ 
-\tvox{b'_1, \ldots, b'_n}{b'_{n+1}}
-\ 
-\tvox{c'_1, \ldots, c'_n}{c'_{n+1}}
-\ 
-\tvox{d'_1, \ldots, d'_n}{d'_{n+1}}
-\ptrans{\arr{merge}}
-\tvox{a'_1, \ldots, a'_n , b''_1, \ldots, b''_n, c''_1, \ldots, c''_n, d''_1, \ldots, d''_n}{d''_{n+1}}
-\end{array}
-\]
-where
-\begin{align*}
-b''_i&= a'_{n+1}+b'_i \\
-c''_i&= a'_{n+1}+b'_{n+1}+c'_i \\
-d''_i&= a'_{n+1}+b'_{n+1}+c'_{n+1}+d'_i
-\end{align*}
-}
-
+\hidden{
 \framet{Multi-way merge}{
 \[
 \begin{array}{c}
-\tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
+\tvox{b_{1,1}, \ldots, b_{1,n}}{b_{1,n+1}}
 \ 
-\tvox{b'_1, \ldots, b'_n}{b'_{n+1}}
+\tvox{b_{2,1}, \ldots, b_{2,n}}{b_{2,n+1}}
 \ 
-\tvox{c'_1, \ldots, c'_n}{c'_{n+1}}
-\ 
-\tvox{d'_1, \ldots, d'_n}{d'_{n+1}}
+\tvox{b_{3,1}, \ldots, b_{3,n}}{b_{3,n+1}}
 \ptrans{\arr{merge}}
-\tvox{a''_1, \ldots, a''_n , b''_1, \ldots, b''_n, c''_1, \ldots, c''_n, d''_1, \ldots, d''_n}{d''_{n+1}}
+\tvox{c_{1,1}, \ldots, c_{1,n} , c_{2,1}, \ldots, c_{2,n}, c_{3,1}, \ldots, c_{3,n}}{c_{3,n+1}}
 \end{array}
 \]
-\pause where
+where
 \begin{align*}
-a''_i &= 0 + a'_i \\
-b''_i &= a'_{n+1} + b'_i \\
-c''_i &= (a'_{n+1}+b'_{n+1}) + c'_i \\
-d''_i &= (a'_{n+1}+b'_{n+1}+c'_{n+1}) + d'_i \\
+c^1_i&= b^1_i \\
+c^2_i&= b^1_{n+1}+b^2_i \\
+c^3_i&= b^1_{n+1}+b^2_{n+1}+b^3_i \\
 \end{align*}
 
 \pause
 \vspace{-3ex} % Why??
 \emph{Where have we seen this pattern of shifts?}
 }
+}
 
 \nc\sdots[1]{\hspace{#1} \ldots \hspace{#1}}
 
-\framet{$k$-way split/merge}{
+\framet{Variation: $k$-way split/merge}{
 \[
 \begin{array}{c}
 \vox{a_{1,1}, \ldots, a_{1,m},  \ldots,  a_{k,1}, \ldots, a_{k,m}}
 \ptrans{\arr{split}}
 \vox{a_{1,1}, \ldots, a_{1,m}} \sdots{3ex} \vox{a_{k,1}, \ldots, a_{k,m}}
-\ptrans{\arr{sums} \sdots{6ex} \arr{sums}}
+\ptrans{\arr{sums} \sdots{10ex} \arr{sums}}
 \tvox{b_{1,1}, \ldots, b_{1,m}}{b_{1,m+1}} \sdots{3ex} \tvox{b_{k,1}, \ldots, b_{k,m}}{b_{k,m+1}}
 \ptrans{\arr{merge}}
-\tvox{d_{1,1}, \ldots, d_{1,m}, \ldots, d_{k,1}, \ldots, d_{k,m}}{c_{k+1}}
+\tvox{d_{1,1}, \ldots, d_{1,m}, \ldots, d_{k,1}, \ldots, d_{k,m}}{c_{k+1}} % {d_{k,m+1}}
 \end{array}
 \]
 where
 \begin{align*}
-\tvox{c_1,\ldots,c_k}{c_{k+1}} &= \sums\left({\vox{b_{1,m+1},\ldots,b_{k,m+1}}}\right) \\
-d_{i,j} &= c_j + b_{i,j}
+d_{i,j} &= c_i + b_{i,j} \\
+c_i &= \sum_{1 \le l < i} b_{l,m+1} \\
 \end{align*}
-
 }
 
+\framet{$k$-way split/merge}{
+\[
+\begin{array}{c}
+\vox{a_{1,1}, \ldots, a_{1,m},  \ldots,  a_{k,1}, \ldots, a_{k,m}}
+\trans{\arr{split}}
+\vox{a_{1,1}, \ldots, a_{1,m}} \sdots{3ex} \vox{a_{k,1}, \ldots, a_{k,m}}
+\trans{\arr{sums} \sdots{10ex} \arr{sums}}
+\tvox{b_{1,1}, \ldots, b_{1,m}}{b_{1,m+1}} \sdots{3ex} \tvox{b_{k,1}, \ldots, b_{k,m}}{b_{k,m+1}}
+\trans{\arr{merge}}
+\tvox{d_{1,1}, \ldots, d_{1,m}, \ldots, d_{k,1}, \ldots, d_{k,m}}{c_{k+1}} %{d_{k,m+1}}
+\end{array}
+\]
+where
+\begin{align*}
+d_{i,j} &= c_j + b_{i,j} \\
+\tvox{c_1,\ldots,c_k}{c_{k+1}} &= \sums\left({\vox{b_{1,m+1},\ldots,b_{k,m+1}}}\right) \\
+\end{align*}
+}
+
+\framet{$k$-way split/merge}{
+\[
+\begin{array}{c}
+\vox{a_{1,1}, \ldots, a_{1,m},  \ldots,  a_{k,1}, \ldots, a_{k,m}}
+\trans{\arr{split}}
+\vox{a_{1,1}, \ldots, a_{1,m}} \sdots{3ex} \vox{a_{k,1}, \ldots, a_{k,m}}
+\trans{\arr{sums} \sdots{10ex} \arr{sums}}
+\tvox{b_{1,1}, \ldots, b_{1,m}}{b_{1,m+1}} \sdots{3ex} \tvox{b_{k,1}, \ldots, b_{k,m}}{b_{k,m+1}}
+\trans{\arr{merge}}
+\tvox{d_{1,1}, \ldots, d_{1,m}, \ldots, d_{k,1}, \ldots, d_{k,m}}{c_{k+1}} %{d_{k,m+1}}
+\end{array}
+\]
+where
+
+\vspace{-3ex}\hspace{15ex}
+\begin{minipage}[c]{0.3\textwidth}
+\[
+\begin{array}{c}
+\vox{b_{1,m+1},\ldots,b_{k,m+1}}
+\trans{\arr{sums}}
+\tvox{c_1,\ldots,c_k}{c_{k+1}}
+\end{array}
+\]
+\end{minipage}
+\begin{minipage}[c]{0.3\textwidth}
+\[ d_{i,j} = c_j + b_{i,j} \]
+\end{minipage}
+}
+
+\framet{Work analysis}{
+
+Master Theorem:
+
+\[ W(n) = a \, W(n/b) + c' \, n \]
+
+\[ 
+W(n) = \begin{cases}
+ \mtCaseo{<}{n}
+ \mtCaseo{=}{n \, \log n}
+ \mtCaseo{>}{n^{\log_b a}}
+\end{cases}
+\]
+
+\ \pause
+
+% $k$-way split:
+$k$ pieces of size $n/k$ each:
+\[ W(n) = k \, W(n/k) + c' \, n \]
+Still $O(n \, \log n)$.
+
+\vspace{1ex} \pause
+If $k$ is \emph{fixed}.
+}
+
+\framet{Split inversion}{
+
+$k$-way split:
+$k$ pieces of size $n/k$ each.
+
+\ \pause
+
+Idea: \emph{Invert split} --- $n/k$ pieces of size $k$ each.
+
+\pause
+\begin{align*}
+W(n) &= (n/k) \, W(k) + W (n/k) + c \, n\\
+     &= W (n/k) + c' \, n
+\end{align*}
+
+Now we get $O(n)$ work and depth!
+}
+
+\framet{Root split} {
+
+Another idea: split into $\sqrt{n}$ pieces of size $\sqrt{n}$ each.
+
+\[ W(n) = \sqrt{n} \cdot W (\sqrt{n}) + W (\sqrt{n}) + c \, n \]
+
+\ \pause
+
+Solution:
+
+\begin{align*}
+ D(n) &= O(\log \log n) \\
+ W(n) &= O(n \, \log \log n) \\
+\end{align*}
+}
 
 \end{document}

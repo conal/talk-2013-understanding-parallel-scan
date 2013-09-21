@@ -423,7 +423,11 @@ W(n) = \begin{cases}
 
 % $k$-way split:
 $k$ pieces of size $n/k$ each:
-\[ W(n) = k \, W(n/k) + c' \, n \]
+% \[ W(n) = k \, W(n/k) + W(k) + c' \, n \]
+\begin{align*}
+W(n) &= k \, W(n/k) + W(k) + O(n) \\
+     &= k \, W (n/k) + c'' \, n
+\end{align*}
 Still $O(n \, \log n)$.
 
 \vspace{1ex} \pause

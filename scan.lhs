@@ -94,10 +94,10 @@ where
 \end{center}
 
 \vspace{2ex}\pause
-\emph{Work:} quadratic.
+\emph{Work:} $O(n^2)$.
 
 \pause
-\emph{Time:} \pause quadratic, linear, logarithmic.
+\emph{Time:} \pause $O(n^2)$, $O(n)$, $O(\log n)$.
 
 \vspace{8ex}
 }
@@ -123,10 +123,10 @@ b_{k+1} &= b_k + a_k
 \end{center}
 
 \vspace{2ex} \pause
-\emph{Work:} linear.
+\emph{Work:} $O(n)$.
 
 \pause
-\emph{Depth} (ideal parallel ``time''): linear.
+\emph{Depth} (ideal parallel ``time''): $O(n)$.
 
 \ 
 
@@ -167,21 +167,21 @@ Depends on cost of splitting and merging.
 \begin{itemize}
 \pitem Constant:
  \begin{align*}
- D(n) &= D(n/2) + c \\
+ D(n) &= D(n/2) + O(1) \\
  D(n) &= O(\log n)
  \end{align*}
 
 \pitem Linear:
  \begin{align*}
-  D(n) &= D(n/2) + c \, n \\
-  D(2^k) &= (1 + 2 + 4 + \cdots + 2^k) \cdot c = O(2^k) \\
+  D(n) &= D(n/2) + O(n) \\
+  D(2^k) &= O (1 + 2 + 4 + \cdots + 2^k) = O(2^k) \\
   D(n) &= O(n)
  \end{align*}
 
 \pitem Logarithmic:
  \begin{align*}
-  D(n) &= D(n/2) + c \, \log n \\
-  D(2^k) &= (0 + 1 + 2 + \cdots + k) \cdot c = O(k^2) \\
+  D(n) &= D(n/2) + O(\log n) \\
+  D(2^k) &= O(0 + 1 + 2 + \cdots + k) = O(k^2) \\
   D(n) &= O(\log^2 n)
  \end{align*}
 \end{itemize}
@@ -189,7 +189,8 @@ Depends on cost of splitting and merging.
 
 \framet{Work analysis}{
 Work recurrence:
-\[ W(n) = 2 \, W(n/2) + c' \, n \]
+
+\[ W(n) = 2 \, W(n/2) + O(n) \]
 
 \vspace{4ex}
 
@@ -221,7 +222,7 @@ Divide and conquer:
 
 \framet{Master Theorem}{
 Given a recurrence:
-\[ f(n) = a \, f(n/b) + c \, n^d \]
+\[ f(n) = a \, f(n/b) + O(n^d) \]
 We have the following closed form bound:
 \[ 
 f(n) = \begin{cases}
@@ -238,7 +239,7 @@ f(n) = \begin{cases}
 
 \framet{Master Theorem ($d=1$)}{
 Given a recurrence:
-\[ f(n) = a \, f(n/b) + c \, n \]
+\[ f(n) = a \, f(n/b) + O(n) \]
 We have the following closed form bound:
 \[ 
 f(n) = \begin{cases}
@@ -251,7 +252,7 @@ f(n) = \begin{cases}
 \ \pause
 
 \emph{Puzzle:} how to get $a < b$ for our recurrence?
-\[ W(n) = 2 \, W(n/2) + c' \, n \]
+\[ W(n) = 2 \, W(n/2) + O(n) \]
 Return to this question later.
 }
 
@@ -409,7 +410,7 @@ where
 
 Master Theorem:
 
-\[ W(n) = a \, W(n/b) + c' \, n \]
+\[ W(n) = a \, W(n/b) + O(n) \]
 
 \[ 
 W(n) = \begin{cases}
@@ -423,10 +424,10 @@ W(n) = \begin{cases}
 
 % $k$-way split:
 $k$ pieces of size $n/k$ each:
-% \[ W(n) = k \, W(n/k) + W(k) + c' \, n \]
+% \[ W(n) = k \, W(n/k) + W(k) + O(n) \]
 \begin{align*}
 W(n) &= k \, W(n/k) + W(k) + O(n) \\
-     &= k \, W (n/k) + c'' \, n
+     &= k \, W (n/k) + O(n)
 \end{align*}
 Still $O(n \, \log n)$.
 
@@ -445,8 +446,8 @@ Idea: \emph{Invert split} --- $n/k$ pieces of size $k$ each.
 
 \pause
 \begin{align*}
-W(n) &= (n/k) \, W(k) + W (n/k) + c \, n\\
-     &= W (n/k) + c' \, n
+W(n) &= (n/k) \, W(k) + W (n/k) + O(n)\\
+     &= W (n/k) + O(n)
 \end{align*}
 
 Now we get $O(n)$ work and depth!
@@ -456,7 +457,7 @@ Now we get $O(n)$ work and depth!
 
 Another idea: split into $\sqrt{n}$ pieces of size $\sqrt{n}$ each.
 
-\[ W(n) = \sqrt{n} \cdot W (\sqrt{n}) + W (\sqrt{n}) + c \, n \]
+\[ W(n) = \sqrt{n} \cdot W (\sqrt{n}) + W (\sqrt{n}) + O(n) \]
 
 \ \pause
 

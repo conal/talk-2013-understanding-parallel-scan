@@ -31,10 +31,10 @@ clean:
 web: web-token
 
 # stash=conal@conal.net:/home/conal/web/talks
-STASH=conal@conal-lin:/home/conal
+STASH=conal@conal-lin:/home/conal/talks
 web: web-token
 
 web-token: $(TARG).pdf $(TARG).lhs
-	scp $? $(STASH)
+	scp $@ $(STASH)
 	touch $@
 

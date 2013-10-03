@@ -591,8 +591,11 @@ __global__ void prescan(float *g_odata, float *g_idata, int n) {
 \begin{minipage}[c]{0.25\textwidth}
 \pause
 % {\huge\it WTF?}
-\hspace{-1in}\wpicture{2in}{picard-facepalm}
+% \hspace{-1in}\wpicture{2in}{picard-facepalm}
 % \hspace{-1in}\wpicture{2in}{wat-duck}
+% \hspace{-1in}\wpicture{2in}{wat-beaker}
+% \hspace{-0.2in}\wpicture{1in}{beaker-fuzzy-on-white}
+\hspace{-1in}\wpicture{2in}{beaker-looks-left}
 \end{minipage}
 }
 

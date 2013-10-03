@@ -7,6 +7,8 @@
 
 > import Prelude hiding (zip,unzip)
 > import Data.Monoid
+> import Data.Functor ((<$>))
+> import Control.Arrow (first)
 
 Sequential prefix sum on lists:
 
@@ -97,21 +99,31 @@ Left scan class:
 Scan for top-down trees:
 
 > instance (Zippy f, LScan f) => LScan (T f) where
->   lscan (L n)  = (L mempty, n)
->   lscan (B ts) = (B (zipWith2 adjust tots' ts'), tot)
+>   lscan (L a)  = (L mempty, a)
+>   lscan (B ts) = (B (adjust <$> zip (tots',ts')), tot)
 >    where
->      (ts' ,tots)  = unzip (fmap lscan ts)
->      (tots',tot)  = lscan tots
->      adjust p t   = fmap (p `mappend`) t
+>      (ts' ,tots)   = unzip (lscan <$> ts)
+>      (tots',tot)   = lscan tots
+>      adjust (p,t)  = (p `mappend`) <$> t
 
 Same definition for bottom-up trees (modulo type and constructor names):
 
 > instance (Zippy f, LScan f) => LScan (T' f) where
->   lscan (L' n)  = (L' mempty, n)
->   lscan (B' ts) = (B' (zipWith2 adjust tots' ts'), tot)
+>   lscan (L' a)  = (L' mempty, a)
+>   lscan (B' ts) = (B' (adjust <$> zip (tots',ts')), tot)
 >    where
->      (ts' ,tots)  = unzipWith2 lscan ts
->      (tots',tot)  = lscan tots
->      adjust p t   = fmap (p `mappend`) t
+>      (ts' ,tots)   = unzip (lscan <$> ts)
+>      (tots',tot)   = lscan tots
+>      adjust (p,t)  = (p `mappend`) <$> t
 
+Root split
 
+> data RT f a = L'' (f a) | B'' (T f (T f a)) deriving Functor
+>
+> instance (Zippy f, LScan f) => LScan (RT f) where
+>   lscan (L'' as)  = first L'' (lscan as)
+>   lscan (B'' ts)  = (B'' (adjust <$> zip (tots',ts')), tot)
+>    where
+>      (ts' ,tots)   = unzip (lscan <$> ts)
+>      (tots',tot)   = lscan tots
+>      adjust (p,t)  = (p `mappend`) <$> t

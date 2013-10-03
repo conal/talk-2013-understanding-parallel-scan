@@ -3,16 +3,17 @@
 % Presentation
 \documentclass{beamer}
 
-\usefonttheme{serif}
-
 %% % Printed, 2-up
 %% \documentclass[serif,handout]{beamer}
+%% \usepackage{pgfpages}
 %% \pgfpagesuselayout{2 on 1}[border shrink=1mm]
 
 %% % Printed, 4-up
 %% \documentclass[serif,handout,landscape]{beamer}
 %% \usepackage{pgfpages}
 %% \pgfpagesuselayout{4 on 1}[border shrink=1mm]
+
+\usefonttheme{serif}
 
 \usepackage{beamerthemesplit}
 
@@ -598,12 +599,12 @@ Parametrized over container and associative operation.
 > SPACE
 >
 > instance (Zippy f, LScan f) => LScan (T f) where
->   lscan (L a)   = (L mempty, a)
->   lscan (B ts)  = (B (zipWith2 adjust tots' ts'), tot)
+>   lscan (L a)  = (L mempty, a)
+>   lscan (B ts) = (B (adjust <$> zip (tots',ts')), tot)
 >    where
->      (ts' ,tots)  = unzipWith2 lscan ts
->      (tots',tot)  = lscan tots
->      adjust p t   = fmap (p `mappend`) t
+>      (ts' ,tots)   = unzip (lscan <$> ts)
+>      (tots',tot)   = lscan tots
+>      adjust (p,t)  = (p `mappend`) <$> t
 
 }
 
@@ -614,12 +615,28 @@ Parametrized over container and associative operation.
 > SPACE
 >
 > instance (Zippy f, LScan f) => LScan (T f) where
->   lscan (L a)   = (L mempty, a)
->   lscan (B ts)  = (B (zipWith2 adjust tots' ts'), tot)
+>   lscan (L a)  = (L mempty, a)
+>   lscan (B ts) = (B (adjust <$> zip (tots',ts')), tot)
 >    where
->      (ts' ,tots)  = unzipWith2 lscan ts
->      (tots',tot)  = lscan tots
->      adjust p t   = fmap (p `mappend`) t
+>      (ts' ,tots)   = unzip (lscan <$> ts)
+>      (tots',tot)   = lscan tots
+>      adjust (p,t)  = (p `mappend`) <$> t
+
+}
+
+\framet{In Haskell --- root split}{
+
+> data RT f a = L (f a) | B (T f (T f a))
+> 
+> SPACE
+> 
+> instance (Zippy f, LScan f) => LScan (RT f) where
+>   lscan (L as)  = first L (lscan as)
+>   lscan (B ts)  = (B (adjust <$> zip (tots',ts')), tot)
+>    where
+>      (ts' ,tots)   = unzip (lscan <$> ts)
+>      (tots',tot)   = lscan tots
+>      adjust (p,t)  = (p `mappend`) <$> t
 
 }
 
@@ -628,8 +645,8 @@ Parametrized over container and associative operation.
 \item Reschedulable computing needs new languages and techniques.
 \vspace{1ex}
 \begin{itemize} \itemsep 1em
-\pitem \emph{Out:} Sequencing, threads, mutation.
-\pitem \emph{In:} Math, functional programming.
+\pitem \emph{Out:} sequencing, threads, mutation.
+\pitem \emph{In:} math, functional programming.
 \end{itemize}
 \pitem Reduce other dependencies via equational reasoning.
 \pitem Associativity matters.

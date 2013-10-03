@@ -1,7 +1,9 @@
 %% -*- latex -*-
 
 % Presentation
-\documentclass[serif]{beamer}
+\documentclass{beamer}
+
+\usefonttheme{serif}
 
 %% % Printed, 2-up
 %% \documentclass[serif,handout]{beamer}
@@ -13,6 +15,11 @@
 %% \pgfpagesuselayout{4 on 1}[border shrink=1mm]
 
 \usepackage{beamerthemesplit}
+
+%% % http://www.latex-community.org/forum/viewtopic.php?f=44&t=16603
+%% \makeatletter
+%% \def\verbatim{\small\@verbatim \frenchspacing\@vobeyspaces \@xverbatim}
+%% \makeatother
 
 \usepackage{graphicx}
 \usepackage{color}
@@ -43,7 +50,7 @@
 
 %% Do I use any of this picture stuff?
 
-\nc\wpicture[2]{\includegraphics[width=#1]{pictures/#2}}
+\nc\wpicture[2]{\includegraphics[width=#1]{#2}}
 
 \nc\wfig[2]{
 \begin{center}
@@ -497,13 +504,105 @@ Nearly constant depth and nearly linear work.
 Useful in practice?
 }
 
+\framet{In Haskell --- generalized left scan}{
+
+> class LScan f where
+>   lscan :: Monoid a => f a -> (f a, a)
+
+\vspace{2ex}
+
+Parametrized over container and associative operation.
+
+}
+
+\framet{In Haskell --- top-down}{
+
+> data T f a = L a | B (f (T f a))
+>
+> SPACE
+>
+> instance (Zippy f, LScan f) => LScan (T f) where
+>   lscan (L a)   = (L mempty, a)
+>   lscan (B ts)  = (B (zipWith2 adjust tots' ts'), tot)
+>    where
+>      (ts' ,tots)  = unzipWith2 lscan ts
+>      (tots',tot)  = lscan tots
+>      adjust p t   = fmap (p `mappend`) t
+
+}
+
+\framet{In Haskell --- bottom-up}{
+
+> data T f a = L a | B (T f (f a))
+>
+> SPACE
+>
+> instance (Zippy f, LScan f) => LScan (T f) where
+>   lscan (L a)   = (L mempty, a)
+>   lscan (B ts)  = (B (zipWith2 adjust tots' ts'), tot)
+>    where
+>      (ts' ,tots)  = unzipWith2 lscan ts
+>      (tots',tot)  = lscan tots
+>      adjust p t   = fmap (p `mappend`) t
+
+}
+
+\framet{In CUDA C --- bottom-up}{
+
+\begin{minipage}[c]{0.7\textwidth}
+\tiny
+\begin{verbatim}
+__global__ void prescan(float *g_odata, float *g_idata, int n) {
+    extern __shared__ float temp[];  // allocated on invocation
+    int thid = threadIdx.x;
+    int offset = 1;
+    // load input into shared memory
+    temp[2*thid] = g_idata[2*thid];
+    temp[2*thid+1] = g_idata[2*thid+1];
+    // build sum in place up the tree
+    for (int d = n>>1; d > 0; d >>= 1) {
+        __syncthreads();
+        if (thid < d) {
+            int ai = offset*(2*thid+1)-1;
+            int bi = offset*(2*thid+2)-1;
+            temp[bi] += temp[ai]; }
+        offset *= 2; }
+    // clear the last element
+    if (thid == 0) { temp[n - 1] = 0; }
+    // traverse down tree & build scan
+    for (int d = 1; d < n; d *= 2) {
+        offset >>= 1;
+        __syncthreads();
+        if (thid < d) {
+            int ai = offset*(2*thid+1)-1;
+            int bi = offset*(2*thid+2)-1;
+            float t = temp[ai];
+            temp[ai] = temp[bi];
+            temp[bi] += t; } }
+    __syncthreads();
+    // write results to device memory
+    g_odata[2*thid] = temp[2*thid];
+    g_odata[2*thid+1] = temp[2*thid+1]; }
+\end{verbatim}
+\vspace{-6ex}
+\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{\emph{Source: GPU Gems 3, Chapter 39}}
+\normalsize
+\end{minipage}
+\begin{minipage}[c]{0.25\textwidth}
+\pause
+% {\huge\it WTF?}
+\hspace{-1in}\wpicture{2in}{picard-facepalm}
+% \hspace{-1in}\wpicture{2in}{wat-duck}
+\end{minipage}
+}
+
 \framet{Reflections}{
 \begin{itemize} \itemsep 1.5em
 \item Reschedulable computing needs new languages and techniques.
 \vspace{1ex}
 \begin{itemize} \itemsep 1em
-\pitem \emph{Out:} sequence, threads, mutation.
-\pitem \emph{In:} math, functional programming.
+\pitem \emph{Out:} Sequencing, threads, mutation.
+\pitem \emph{In:} Math, functional programming.
 \end{itemize}
 \pitem Reduce other dependencies via equational reasoning.
 \pitem Associativity matters.

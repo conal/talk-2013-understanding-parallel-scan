@@ -49,6 +49,9 @@ Top-down divide-and-conquer:
 
 > zipWith2 :: Zippy f => (a -> b -> c) -> f a -> f b -> f c
 > zipWith2 h as bs = fmap (uncurry h) (zip (as,bs))
+>
+> unzipWith2 :: Zippy f => (a -> (b, c)) -> f a -> (f b, f c)
+> unzipWith2 f xs = unzip (fmap f xs)
 
 > data T f a = L a | B (f (T f a)) deriving Functor
 
@@ -76,15 +79,15 @@ Uniform pairs:
 
 > data P a = a :# a deriving Functor
 
-Bottom-up binary trees:
+Top-down binary trees:
 
-> type BT = T P
+> type TT = T P
 
-Top-down trees:
+Bottom-up:
 
-> data T' f a = L' a | B' (f (T f a)) deriving Functor
+> data T' f a = L' a | B' (T f (f a)) deriving Functor
 
-> type TT = T' P
+> type BT = T' P
 
 Left scan class: 
 
@@ -107,7 +110,7 @@ Same definition for bottom-up trees (modulo type and constructor names):
 >   lscan (L' n)  = (L' mempty, n)
 >   lscan (B' ts) = (B' (zipWith2 adjust tots' ts'), tot)
 >    where
->      (ts' ,tots)  = unzip (fmap lscan ts)
+>      (ts' ,tots)  = unzipWith2 lscan ts
 >      (tots',tot)  = lscan tots
 >      adjust p t   = fmap (p `mappend`) t
 

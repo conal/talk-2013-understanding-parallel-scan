@@ -42,34 +42,17 @@
 
 % \title{High-level algorithm design for reschedulable computation, Part 1}
 \title{High-level algorithm design\\ for reschedulable computation}
-\subtitle{Part 1: Understanding efficient parallel scan}
+\subtitle{Part 1: Efficient parallel scan} % Understanding 
 \author{\href{http://conal.net}{Conal Elliott}}
 \institute{\href{http://tabula.com/}{Tabula}}
 % Abbreviate date/venue to fit in infolines space
 %% \date{\href{http://www.meetup.com/haskellhackersathackerdojo/events/105583982/}{March 21, 2013}}
 \date{October, 2013}
 
-%% Do I use any of this picture stuff?
-
-\nc\wpicture[2]{\includegraphics[width=#1]{#2}}
-
-\nc\wfig[2]{
-\begin{center}
-\wpicture{#1}{#2}
-\end{center}
-}
-\nc\fig[1]{\wfig{4in}{#1}}
-
 \setlength{\itemsep}{2ex}
 \setlength{\parskip}{1ex}
 
 \setlength{\blanklineskip}{1.5ex}
-
-\nc\usebg[1]{\usebackgroundtemplate{\wpicture{1.2\textwidth}{#1}}}
-
-\nc\framet[2]{\frame{\frametitle{#1}#2}}
-
-\nc\hidden[1]{}
 
 % \nc\half[1]{\frac{#1}{2}}
 \nc\half[1]{{#1}/2}
@@ -163,15 +146,8 @@ __global__ void prescan(float *g_odata, float *g_idata, int n) {
 \hspace{-1in}
 \begin{minipage}[c]{0.25\textwidth}
 \pause
-% {\huge\it WTF?}
-% \hspace{-1in}\wpicture{2in}{picard-facepalm}
-% \hspace{-1in}\wpicture{2in}{wat-duck}
-% \hspace{-1in}\wpicture{2in}{wat-beaker}
-% \hspace{-0.2in}\wpicture{1in}{beaker-fuzzy-on-white}
-
-% \wpicture{2in}{beaker-looks-left}
 \begin{figure}
-\wpicture{2in}{beaker-looks-left}
+\wpicture{2in}{ShadowedPictures/beaker-looks-left}
 
 \hspace{0.75in}\emph{WAT?}
 \end{figure}
@@ -202,7 +178,7 @@ where
 \pause
 \emph{Time:} \pause $O(n^2)$, $O(n)$, $O(\log n)$.
 
-\vspace{8ex}
+\vspace{7.7ex}
 }
 
 \framet{As a recurrence}{
@@ -317,7 +293,7 @@ Divide and conquer:
  W(n) &= O(n \, \log n)
 \end{align*}
 
-\vspace{3ex}\pause Can we get $O(n)$ work and $O(\log n)$ depth?
+\vspace{3ex}\pause Challenge: can we get $O(n)$ work and $O(\log n)$ depth?
 }
 
 \nc\case[2]{#2 & \text{if~} #1 \\}
@@ -525,9 +501,7 @@ W(n) = \begin{cases}
 
 \ \pause
 
-% $k$-way split:
-$k$ pieces of size $n/k$ each:
-% \[ W(n) = k \, W(n/k) + W(k) + O(n) \]
+Scan with $k$-way split:
 \begin{align*}
 W(n) &= k \, W(n/k) + W(k) + O(n) \\
      &= k \, W (n/k) + O(n)
@@ -542,7 +516,7 @@ If $k$ is \emph{fixed}.
 
 Two kinds of $k$-way split:
 \begin{itemize}
-\item Top-down: $k$ pieces of size $n/k$ each
+\item \emph{Top-down} --- $k$ pieces of size $n/k$ each
 \begin{align*}
 W(n) &= k \, W(n/k) + W(k) + O(n) \\
      &= k \, W (n/k) + O(n) \\
@@ -550,7 +524,7 @@ W(n) &= k \, W(n/k) + W(k) + O(n) \\
 \end{align*}
 \pause
 \item 
-Bottom-up: $n/k$ pieces of size $k$ each
+\emph{Bottom-up} --- $n/k$ pieces of size $k$ each:
 \pause
 \begin{align*}
 W(n) &= (n/k) \, W(k) + W (n/k) + O(n)\\
@@ -566,19 +540,67 @@ Mission accomplished: $O(n)$ work and $O(\log n)$ depth!
 
 Another idea: split into $\sqrt{n}$ pieces of size $\sqrt{n}$ each.
 
-\[ W(n) = \sqrt{n} \cdot W (\sqrt{n}) + W (\sqrt{n}) + O(n) \]
-
-\ \pause
-
-Solution:
+\pause
 
 \begin{align*}
- D(n) &= O(\log \log n) \\
- W(n) &= O(n \, \log \log n) \\
+W(n) &= \sqrt{n} \cdot W (\sqrt{n}) + W (\sqrt{n}) + O(n) \\
+     &= \sqrt{n} \cdot W (\sqrt{n}) + O(n) \\
+     &= O(n \, \log \log n) \\
+\\[1ex]
+D(n) &= O(\log \log n)
 \end{align*}
 
 Nearly constant depth and nearly linear work.
 Useful in practice?
+}
+
+\framet{In CUDA C -- bottom-up binary}{
+\begin{minipage}[c]{0.7\textwidth}
+\tiny
+\begin{verbatim}
+__global__ void prescan(float *g_odata, float *g_idata, int n) {
+    extern __shared__ float temp[];  // allocated on invocation
+    int thid = threadIdx.x;
+    int offset = 1;
+    // load input into shared memory
+    temp[2*thid] = g_idata[2*thid];
+    temp[2*thid+1] = g_idata[2*thid+1];
+    // build sum in place up the tree
+    for (int d = n>>1; d > 0; d >>= 1) {
+        __syncthreads();
+        if (thid < d) {
+            int ai = offset*(2*thid+1)-1;
+            int bi = offset*(2*thid+2)-1;
+            temp[bi] += temp[ai]; }
+        offset *= 2; }
+    // clear the last element
+    if (thid == 0) { temp[n - 1] = 0; }
+    // traverse down tree & build scan
+    for (int d = 1; d < n; d *= 2) {
+        offset >>= 1;
+        __syncthreads();
+        if (thid < d) {
+            int ai = offset*(2*thid+1)-1;
+            int bi = offset*(2*thid+2)-1;
+            float t = temp[ai];
+            temp[ai] = temp[bi];
+            temp[bi] += t; } }
+    __syncthreads();
+    // write results to device memory
+    g_odata[2*thid] = temp[2*thid];
+    g_odata[2*thid+1] = temp[2*thid+1]; }
+\end{verbatim}
+\vspace{-6ex}
+\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{\emph{Source: GPU Gems 3, Chapter 39}}
+\normalsize
+\end{minipage}
+\hspace{-1in}
+\begin{minipage}[c]{0.25\textwidth}
+\pause
+\begin{figure}
+\wpicture{2in}{ShadowedPictures/picard-facepalm}
+\end{figure}
+\end{minipage}
 }
 
 \framet{In Haskell --- generalized left scan}{
@@ -599,8 +621,8 @@ Parametrized over container and associative operation.
 > SPACE
 >
 > instance (Zippy f, LScan f) => LScan (T f) where
->   lscan (L a)  = (L mempty, a)
->   lscan (B ts) = (B (adjust <$> zip (tots',ts')), tot)
+>   lscan (L a)   = (L mempty, a)
+>   lscan (B ts)  = (B (adjust <$> zip (tots',ts')), tot)
 >    where
 >      (ts' ,tots)   = unzip (lscan <$> ts)
 >      (tots',tot)   = lscan tots
@@ -615,8 +637,8 @@ Parametrized over container and associative operation.
 > SPACE
 >
 > instance (Zippy f, LScan f) => LScan (T f) where
->   lscan (L a)  = (L mempty, a)
->   lscan (B ts) = (B (adjust <$> zip (tots',ts')), tot)
+>   lscan (L a)   = (L mempty, a)
+>   lscan (B ts)  = (B (adjust <$> zip (tots',ts')), tot)
 >    where
 >      (ts' ,tots)   = unzip (lscan <$> ts)
 >      (tots',tot)   = lscan tots

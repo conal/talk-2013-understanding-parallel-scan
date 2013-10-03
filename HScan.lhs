@@ -99,8 +99,8 @@ Left scan class:
 Scan for top-down trees:
 
 > instance (Zippy f, LScan f) => LScan (T f) where
->   lscan (L a)  = (L mempty, a)
->   lscan (B ts) = (B (adjust <$> zip (tots',ts')), tot)
+>   lscan (L a)   = (L mempty, a)
+>   lscan (B ts)  = (B (adjust <$> zip (tots',ts')), tot)
 >    where
 >      (ts' ,tots)   = unzip (lscan <$> ts)
 >      (tots',tot)   = lscan tots
@@ -109,8 +109,8 @@ Scan for top-down trees:
 Same definition for bottom-up trees (modulo type and constructor names):
 
 > instance (Zippy f, LScan f) => LScan (T' f) where
->   lscan (L' a)  = (L' mempty, a)
->   lscan (B' ts) = (B' (adjust <$> zip (tots',ts')), tot)
+>   lscan (L' a)   = (L' mempty, a)
+>   lscan (B' ts)  = (B' (adjust <$> zip (tots',ts')), tot)
 >    where
 >      (ts' ,tots)   = unzip (lscan <$> ts)
 >      (tots',tot)   = lscan tots

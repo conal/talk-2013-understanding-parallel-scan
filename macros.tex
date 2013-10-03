@@ -140,3 +140,18 @@
 \nc{\comp}{\,\circ\,}
 
 \tikzset{ ampersand replacement=\& }
+
+\nc\wpicture[2]{\includegraphics[width=#1]{#2}}
+
+\nc\wfig[2]{
+\begin{center}
+\wpicture{#1}{#2}
+\end{center}
+}
+\nc\fig[1]{\wfig{4in}{#1}}
+
+\nc\usebg[1]{\usebackgroundtemplate{\wpicture{1.2\textwidth}{#1}}}
+
+\nc\framet[2]{\frame{\frametitle{#1}#2}}
+
+\nc\hidden[1]{}

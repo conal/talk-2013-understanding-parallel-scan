@@ -47,6 +47,9 @@ Top-down divide-and-conquer:
 >   zip   :: (f a, f b) -> f (a,b)
 >   unzip :: f (a,b) -> (f a, f b)
 
+> zipWith2 :: Zippy f => (a -> b -> c) -> f a -> f b -> f c
+> zipWith2 h as bs = fmap (uncurry h) (zip (as,bs))
+
 > data T f a = L a | B (f (T f a)) deriving Functor
 
 > instance Zippy f => Zippy (T f) where
@@ -88,12 +91,24 @@ Left scan class:
 > class LScan f where
 >   lscan :: Monoid a => f a -> (f a, a)
 
+Scan for top-down trees:
+
 > instance (Zippy f, LScan f) => LScan (T f) where
 >   lscan (L n)  = (L mempty, n)
->   lscan (B ts) = (B (fmap adjust (zip (tots',ts'))), tot)
+>   lscan (B ts) = (B (zipWith2 adjust tots' ts'), tot)
 >    where
->      (tots ,ts')  = unzip (fmap lscan ts)
+>      (ts' ,tots)  = unzip (fmap lscan ts)
 >      (tots',tot)  = lscan tots
->      adjust (p,t) = fmap (p `mappend`) t
+>      adjust p t   = fmap (p `mappend`) t
 
-Working here. Doesn't type-check.
+Same definition for bottom-up trees (modulo type and constructor names):
+
+> instance (Zippy f, LScan f) => LScan (T' f) where
+>   lscan (L' n)  = (L' mempty, n)
+>   lscan (B' ts) = (B' (zipWith2 adjust tots' ts'), tot)
+>    where
+>      (ts' ,tots)  = unzip (fmap lscan ts)
+>      (tots',tot)  = lscan tots
+>      adjust p t   = fmap (p `mappend`) t
+
+

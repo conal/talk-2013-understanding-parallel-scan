@@ -1,5 +1,16 @@
 %% -*- latex -*-
+
+% Presentation
 \documentclass[serif]{beamer}
+
+%% % Printed, 2-up
+%% \documentclass[serif,handout]{beamer}
+%% \pgfpagesuselayout{2 on 1}[border shrink=1mm]
+
+%% % Printed, 4-up
+%% \documentclass[serif,handout,landscape]{beamer}
+%% \usepackage{pgfpages}
+%% \pgfpagesuselayout{4 on 1}[border shrink=1mm]
 
 \usepackage{beamerthemesplit}
 
@@ -11,6 +22,8 @@
 % \useoutertheme{default}
 \useoutertheme{shadow}
 \useoutertheme{infolines}
+% Suppress navigation arrows
+\setbeamertemplate{navigation symbols}{}
 
 \input{macros}
 
@@ -20,12 +33,13 @@
 %include mine.fmt
 
 % \title{High-level algorithm design for reschedulable computation, Part 1}
-\title{Understanding efficient parallel scan}
+\title{High-level algorithm design\\ for reschedulable computation}
+\subtitle{Part 1: Understanding efficient parallel scan}
 \author{\href{http://conal.net}{Conal Elliott}}
 \institute{\href{http://tabula.com/}{Tabula}}
 % Abbreviate date/venue to fit in infolines space
 %% \date{\href{http://www.meetup.com/haskellhackersathackerdojo/events/105583982/}{March 21, 2013}}
-\date{Fall, 2013}
+\date{October, 2013}
 
 %% Do I use any of this picture stuff?
 
@@ -44,10 +58,6 @@
 \setlength{\blanklineskip}{1.5ex}
 
 \nc\usebg[1]{\usebackgroundtemplate{\wpicture{1.2\textwidth}{#1}}}
-
-\begin{document}
-
-\frame{\titlepage}
 
 \nc\framet[2]{\frame{\frametitle{#1}#2}}
 
@@ -76,6 +86,14 @@
 
 %%%%
 
+% \setbeameroption{show notes} % un-comment to see the notes
+
+\begin{document}
+
+\frame{\titlepage}
+
+\title{Efficient parallel scan}
+
 \framet{Prefix sum (scan)}{
 \begin{center}
 \begin{minipage}[c]{0.3\textwidth}
@@ -91,6 +109,7 @@ where
 \begin{minipage}[c]{0.3\textwidth}
 \[ b_k = \sum\limits_{1 \le i < k}{a_i} \]
 \end{minipage}
+
 \end{center}
 
 \vspace{2ex}\pause
@@ -408,7 +427,7 @@ where
 
 \framet{Work analysis}{
 
-Master Theorem:
+Master Theorem ($d = 1$):
 
 \[ W(n) = a \, W(n/b) + O(n) \]
 
@@ -437,20 +456,26 @@ If $k$ is \emph{fixed}.
 
 \framet{Split inversion}{
 
-$k$-way split:
-$k$ pieces of size $n/k$ each.
-
-\ \pause
-
-Idea: \emph{Invert split} --- $n/k$ pieces of size $k$ each.
-
+Two kinds of $k$-way split:
+\begin{itemize}
+\item Top-down: $k$ pieces of size $n/k$ each
+\begin{align*}
+W(n) &= k \, W(n/k) + W(k) + O(n) \\
+     &= k \, W (n/k) + O(n) \\
+     &= O(n \, \log n)
+\end{align*}
+\pause
+\item 
+Bottom-up: $n/k$ pieces of size $k$ each
 \pause
 \begin{align*}
 W(n) &= (n/k) \, W(k) + W (n/k) + O(n)\\
-     &= W (n/k) + O(n)
+     &= W (n/k) + O(n) \\
+     &= O(n)
 \end{align*}
-
-Now we get $O(n)$ work and depth!
+\pause
+Mission accomplished: $O(n)$ work and $O(\log n)$ depth!
+\end{itemize}
 }
 
 \framet{Root split} {
@@ -467,6 +492,22 @@ Solution:
  D(n) &= O(\log \log n) \\
  W(n) &= O(n \, \log \log n) \\
 \end{align*}
+
+Nearly constant depth and nearly linear work.
+Useful in practice?
+}
+
+\framet{Reflections}{
+\begin{itemize} \itemsep 1.5em
+\item Reschedulable computing needs new languages and techniques.
+\vspace{1ex}
+\begin{itemize} \itemsep 1em
+\pitem \emph{Out:} sequence, threads, mutation.
+\pitem \emph{In:} math, functional programming.
+\end{itemize}
+\pitem Reduce other dependencies via equational reasoning.
+\pitem Associativity matters.
+\end{itemize}
 }
 
 \end{document}

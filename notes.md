@@ -11,13 +11,15 @@ We call these platforms, languages, and techniques "*reschedulable*" to reflect 
 In other words, low- and high-level computation descriptions include *what* and *how*, leaving a great deal of flexibility about *when*.
 
 The Spacetime architecture and the Stylus toolchain provide an execution platform and hardware-level "programming" interface for reschedulable computing but lacks the productivity of a modern, high-level programming language.
-von Neumann (i.e., imperative) languages help with productivity, but over-sequentialize.
+"von Neumann" (i.e., imperative) languages help with productivity, but over-sequentialize.
 In contrast, purely functional programming enables elegant specification of algorithms without accidental sequentialization and thus holds great promise for reschedulable programming.
 
 This talk will give a flavor of purely functional, rescheduling-friendly programming by means of the example of parallel prefix computation, also known as "scan".
-We'll start with a simple purely sequential, imperative scan algorithm with linear work and thus linear time execution.
-This algorithm easily translates to functional algorithm with the same work and time use.
-A simple divide-and-conquer idea leads to a functional algorithm that can execute in $O (\log n)$ time and $O (n \log n)$ work, given sufficient computational resources.
+
+We'll start with a simple and precise scan specification that leads directly to an algorithm performing quadratic work and hence quadratic time in a sequential implementation.
+A simple observation leads to a familiar sequential algorithm performing linear work.
+This version, however, does not lend itself to parallel execution.
+Next, a simple divide-and-conquer idea leads to a functional algorithm that can execute in $O (\log n)$ time and $O (n \log n)$ work, given sufficient computational resources.
 Playing with variations and poking at asymmetries, we then see a beautiful generalization that leads to a linear work algorithm while retaining logarithmic time.
 
 # Misc thoughts on presentation

@@ -116,6 +116,82 @@ where
 \begin{minipage}[c]{0.3\textwidth}
 \[ b_k = \sum\limits_{1 \le i < k}{a_i} \]
 \end{minipage}
+\end{center}
+}
+
+\framet{In CUDA C}{
+\begin{minipage}[c]{0.7\textwidth}
+\tiny
+\begin{verbatim}
+__global__ void prescan(float *g_odata, float *g_idata, int n) {
+    extern __shared__ float temp[];  // allocated on invocation
+    int thid = threadIdx.x;
+    int offset = 1;
+    // load input into shared memory
+    temp[2*thid] = g_idata[2*thid];
+    temp[2*thid+1] = g_idata[2*thid+1];
+    // build sum in place up the tree
+    for (int d = n>>1; d > 0; d >>= 1) {
+        __syncthreads();
+        if (thid < d) {
+            int ai = offset*(2*thid+1)-1;
+            int bi = offset*(2*thid+2)-1;
+            temp[bi] += temp[ai]; }
+        offset *= 2; }
+    // clear the last element
+    if (thid == 0) { temp[n - 1] = 0; }
+    // traverse down tree & build scan
+    for (int d = 1; d < n; d *= 2) {
+        offset >>= 1;
+        __syncthreads();
+        if (thid < d) {
+            int ai = offset*(2*thid+1)-1;
+            int bi = offset*(2*thid+2)-1;
+            float t = temp[ai];
+            temp[ai] = temp[bi];
+            temp[bi] += t; } }
+    __syncthreads();
+    // write results to device memory
+    g_odata[2*thid] = temp[2*thid];
+    g_odata[2*thid+1] = temp[2*thid+1]; }
+\end{verbatim}
+\vspace{-6ex}
+\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{\emph{Source: GPU Gems 3, Chapter 39}}
+\normalsize
+\end{minipage}
+\hspace{-1in}
+\begin{minipage}[c]{0.25\textwidth}
+\pause
+% {\huge\it WTF?}
+% \hspace{-1in}\wpicture{2in}{picard-facepalm}
+% \hspace{-1in}\wpicture{2in}{wat-duck}
+% \hspace{-1in}\wpicture{2in}{wat-beaker}
+% \hspace{-0.2in}\wpicture{1in}{beaker-fuzzy-on-white}
+
+% \wpicture{2in}{beaker-looks-left}
+\begin{figure}
+\wpicture{2in}{beaker-looks-left}
+
+\hspace{0.75in}\emph{WAT?}
+\end{figure}
+\end{minipage}
+}
+
+\framet{Prefix sum (scan)}{
+\begin{center}
+\begin{minipage}[c]{0.3\textwidth}
+\[
+\begin{array}{c}
+\vox{a_1, \ldots, a_n}
+\trans{\sums\Downarrow}
+\tvox{b_1, \ldots, b_n}{b_{n+1}}
+\end{array}
+\]
+\end{minipage}
+where
+\begin{minipage}[c]{0.3\textwidth}
+\[ b_k = \sum\limits_{1 \le i < k}{a_i} \]
+\end{minipage}
 
 \end{center}
 
@@ -545,58 +621,6 @@ Parametrized over container and associative operation.
 >      (tots',tot)  = lscan tots
 >      adjust p t   = fmap (p `mappend`) t
 
-}
-
-\framet{In CUDA C --- bottom-up}{
-
-\begin{minipage}[c]{0.7\textwidth}
-\tiny
-\begin{verbatim}
-__global__ void prescan(float *g_odata, float *g_idata, int n) {
-    extern __shared__ float temp[];  // allocated on invocation
-    int thid = threadIdx.x;
-    int offset = 1;
-    // load input into shared memory
-    temp[2*thid] = g_idata[2*thid];
-    temp[2*thid+1] = g_idata[2*thid+1];
-    // build sum in place up the tree
-    for (int d = n>>1; d > 0; d >>= 1) {
-        __syncthreads();
-        if (thid < d) {
-            int ai = offset*(2*thid+1)-1;
-            int bi = offset*(2*thid+2)-1;
-            temp[bi] += temp[ai]; }
-        offset *= 2; }
-    // clear the last element
-    if (thid == 0) { temp[n - 1] = 0; }
-    // traverse down tree & build scan
-    for (int d = 1; d < n; d *= 2) {
-        offset >>= 1;
-        __syncthreads();
-        if (thid < d) {
-            int ai = offset*(2*thid+1)-1;
-            int bi = offset*(2*thid+2)-1;
-            float t = temp[ai];
-            temp[ai] = temp[bi];
-            temp[bi] += t; } }
-    __syncthreads();
-    // write results to device memory
-    g_odata[2*thid] = temp[2*thid];
-    g_odata[2*thid+1] = temp[2*thid+1]; }
-\end{verbatim}
-\vspace{-6ex}
-\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{\emph{Source: GPU Gems 3, Chapter 39}}
-\normalsize
-\end{minipage}
-\begin{minipage}[c]{0.25\textwidth}
-\pause
-% {\huge\it WTF?}
-% \hspace{-1in}\wpicture{2in}{picard-facepalm}
-% \hspace{-1in}\wpicture{2in}{wat-duck}
-% \hspace{-1in}\wpicture{2in}{wat-beaker}
-% \hspace{-0.2in}\wpicture{1in}{beaker-fuzzy-on-white}
-\hspace{-1in}\wpicture{2in}{beaker-looks-left}
-\end{minipage}
 }
 
 \framet{Reflections}{

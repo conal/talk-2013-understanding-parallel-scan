@@ -1,4 +1,4 @@
-> {-# LANGUAGE DeriveFunctor #-}
+> {-# LANGUAGE DeriveFunctor, TypeOperators #-}
 > {-# OPTIONS_GHC -Wall #-}
 
 > {-# OPTIONS_GHC -fno-warn-unused-imports #-}
@@ -8,7 +8,8 @@
 > import Prelude hiding (zip,unzip)
 > import Data.Monoid
 > import Data.Functor ((<$>))
-> import Control.Arrow (first)
+> import Control.Arrow (first,(***))
+> import Control.Compose ((:.)(..))
 
 Sequential prefix sum on lists:
 
@@ -81,6 +82,24 @@ Uniform pairs:
 
 > data P a = a :# a deriving Functor
 
+> instance Zippy P where
+>   zip (a :# a', b :# b') = (a,b) :# (a',b')
+>   unzip ((a,b) :# (a',b')) = (a :# a', b :# b')
+
+> instance (Zippy g, Zippy f) => Zippy (g :. f) where
+>   zip (O gfa, O gfb) = O (zip <$> zip (gfa,gfb))
+>   unzip (O gfab) = (O *** O) (unzip (unzip <$> gfab))
+
+< gfa :: g (f a)
+< gfb :: g (f b)
+< zip (gfa,gfb) :: g (f a, f b)
+< zip <$> zip (gfa,gfb) :: g (f (a,b))
+< O (zip <$> zip (gfa,gfb)) :: (g :. f) (a,b)
+
+< gfab :: g (f (a,b))
+< unzip <$> gfab :: g (f a, f b)
+< unzip (unzip <$> gfab :: g (f a, f b)) :: (g (f a), g (f b))
+
 Top-down binary trees:
 
 > type TT = T P
@@ -95,6 +114,11 @@ Left scan class:
 
 > class LScan f where
 >   lscan :: Monoid a => f a -> (f a, a)
+
+Uniform pairs:
+
+> instance LScan P where
+>   lscan (a :# b) = (mempty :# a, a `mappend` b)
 
 Scan for top-down trees:
 
@@ -116,7 +140,7 @@ Same definition for bottom-up trees (modulo type and constructor names):
 >      (tots',tot)   = lscan tots
 >      adjust (p,t)  = (p `mappend`) <$> t
 
-Root split
+Root split, top-down:
 
 > data RT f a = L'' (f a) | B'' (T f (T f a)) deriving Functor
 >
@@ -127,3 +151,20 @@ Root split
 >      (ts' ,tots)   = unzip (lscan <$> ts)
 >      (tots',tot)   = lscan tots
 >      adjust (p,t)  = (p `mappend`) <$> t
+
+Generalize to functor composition:
+
+> instance (Functor f, Zippy g, LScan g, LScan f) => LScan (g :. f) where
+>   lscan (O ts)  = (O (adjust <$> zip (tots',ts')), tot)
+>    where
+>      (ts' ,tots)   = unzip (lscan <$> ts)
+>      (tots',tot)   = lscan tots
+>      adjust (p,t)  = (p `mappend`) <$> t
+
+Bottom-up:
+
+> data RT' f a = L''' (f a) | B''' (T (f :. f) a) deriving Functor
+>
+> instance (Zippy f, LScan f) => LScan (RT' f) where
+>   lscan (L''' as)  = first L''' (lscan as)
+>   lscan (B''' t)   = first B''' (lscan t)

@@ -1,4 +1,4 @@
-% High-level algorithm design for reschedulable computation, Part 1
+% High-level algorithm design for reschedulable computation, Part 1 -- Understanding parallel scan
 % Conal Elliott, Tabula
 % October 8, 2013
 

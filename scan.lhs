@@ -67,7 +67,7 @@
 \nc\vox[1]{\bboxed{#1}}
 \nc\tvox[2]{\vox{#1}\vox{#2}}
 
-\nc\sums{\Varid{sums}}
+\nc\lscan{\Varid{lscan}}
 
 \nc\trans[1]{\\[1.3ex] #1 \\[0.75ex]}
 \nc\ptrans[1]{\pause\trans{#1}}
@@ -85,13 +85,13 @@
 
 \title{Efficient parallel scan}
 
-\framet{Prefix sum (scan)}{
+\framet{Prefix sum (left scan)}{
 \begin{center}
 \begin{minipage}[c]{0.3\textwidth}
 \[
 \begin{array}{c}
 \vox{a_1, \ldots, a_n}
-\trans{\sums\Downarrow}
+\trans{\lscan\Downarrow}
 \tvox{b_1, \ldots, b_n}{b_{n+1}}
 \end{array}
 \]
@@ -149,18 +149,18 @@ __global__ void prescan(float *g_odata, float *g_idata, int n) {
 \begin{figure}
 \wpicture{2in}{ShadowedPictures/beaker-looks-left}
 
-\hspace{0.75in}\emph{WAT?}
+\hspace{0.75in}\emph{WAT}
 \end{figure}
 \end{minipage}
 }
 
-\framet{Prefix sum (scan)}{
+\framet{Prefix sum (left scan)}{
 \begin{center}
 \begin{minipage}[c]{0.3\textwidth}
 \[
 \begin{array}{c}
 \vox{a_1, \ldots, a_n}
-\trans{\sums\Downarrow}
+\trans{\lscan\Downarrow}
 \tvox{b_1, \ldots, b_n}{b_{n+1}}
 \end{array}
 \]
@@ -187,7 +187,7 @@ where
 \[
 \begin{array}{c}
 \vox{a_1, \ldots, a_n}
-\trans{\sums\Downarrow}
+\trans{\lscan\Downarrow}
 \tvox{b_1, \ldots, b_n}{b_{n+1}}
 \end{array}
 \]
@@ -224,7 +224,7 @@ Linear \emph{dependency chain} thwarts parallelism (depth $<$ work).
 \vox{a_1, \ldots, a_n}
 \ 
 \vox{a'_1, \ldots, a'_n}
-\ptransp{\arr{sums} \hspace{12ex} \arr{sums}}
+\ptransp{\arr{lscan} \hspace{12ex} \arr{lscan}}
 \tvox{b_1, \ldots, b_n}{b_{n+1}}
 \ 
 \tvox{b'_1, \ldots, b'_n}{b'_{n+1}}
@@ -345,7 +345,7 @@ The divide-and-conquer algorithm:
 \vox{a_1, \ldots, a_n}
 \ 
 \vox{b_1, \ldots, b_n}
-\trans{\arr{sums} \hspace{12ex} \arr{sums}}
+\trans{\arr{lscan} \hspace{12ex} \arr{lscan}}
 \tvox{a'_1, \ldots, a'_n}{a'_{n+1}}
 \ 
 \tvox{b'_1, \ldots, b'_n}{b'_{n+1}}
@@ -372,7 +372,7 @@ Note the asymmetry: adjust the $b'_i$ but not the $a'_i$.
 \vox{a_{2,1}, \ldots, a_{2,m}}
 \ 
 \vox{a_{3,1}, \ldots, a_{3,m}}
-\ptrans{\arr{sums} \hspace{12ex} \arr{sums} \hspace{12ex} \arr{sums}}
+\ptrans{\arr{lscan} \hspace{12ex} \arr{lscan} \hspace{12ex} \arr{lscan}}
 \tvox{b_{1,1}, \ldots, b_{1,m}}{b_{1,m+1}}
 \ 
 \tvox{b_{2,1}, \ldots, b_{2,m}}{b_{2,m+1}}
@@ -424,7 +424,7 @@ c^3_i&= b^1_{n+1}+b^2_{n+1}+b^3_i \\
 \vox{a_{1,1}, \ldots, a_{1,m},  \ldots,  a_{k,1}, \ldots, a_{k,m}}
 \ptrans{\arr{split}}
 \vox{a_{1,1}, \ldots, a_{1,m}} \sdots{3ex} \vox{a_{k,1}, \ldots, a_{k,m}}
-\ptrans{\arr{sums} \sdots{10ex} \arr{sums}}
+\ptrans{\arr{lscan} \sdots{10ex} \arr{lscan}}
 \tvox{b_{1,1}, \ldots, b_{1,m}}{b_{1,m+1}} \sdots{3ex} \tvox{b_{k,1}, \ldots, b_{k,m}}{b_{k,m+1}}
 \ptrans{\arr{merge}}
 \tvox{d_{1,1}, \ldots, d_{1,m}, \ldots, d_{k,1}, \ldots, d_{k,m}}{c_{k+1}} % {d_{k,m+1}}
@@ -443,7 +443,7 @@ c_i &= \sum_{1 \le l < i} b_{l,m+1} \\
 \vox{a_{1,1}, \ldots, a_{1,m},  \ldots,  a_{k,1}, \ldots, a_{k,m}}
 \trans{\arr{split}}
 \vox{a_{1,1}, \ldots, a_{1,m}} \sdots{3ex} \vox{a_{k,1}, \ldots, a_{k,m}}
-\trans{\arr{sums} \sdots{10ex} \arr{sums}}
+\trans{\arr{lscan} \sdots{10ex} \arr{lscan}}
 \tvox{b_{1,1}, \ldots, b_{1,m}}{b_{1,m+1}} \sdots{3ex} \tvox{b_{k,1}, \ldots, b_{k,m}}{b_{k,m+1}}
 \trans{\arr{merge}}
 \tvox{d_{1,1}, \ldots, d_{1,m}, \ldots, d_{k,1}, \ldots, d_{k,m}}{c_{k+1}} %{d_{k,m+1}}
@@ -452,7 +452,7 @@ c_i &= \sum_{1 \le l < i} b_{l,m+1} \\
 where
 \begin{align*}
 d_{i,j} &= c_j + b_{i,j} \\
-\tvox{c_1,\ldots,c_k}{c_{k+1}} &= \sums\left({\vox{b_{1,m+1},\ldots,b_{k,m+1}}}\right) \\
+\tvox{c_1,\ldots,c_k}{c_{k+1}} &= \lscan\left({\vox{b_{1,m+1},\ldots,b_{k,m+1}}}\right) \\
 \end{align*}
 }
 
@@ -462,7 +462,7 @@ d_{i,j} &= c_j + b_{i,j} \\
 \vox{a_{1,1}, \ldots, a_{1,m},  \ldots,  a_{k,1}, \ldots, a_{k,m}}
 \trans{\arr{split}}
 \vox{a_{1,1}, \ldots, a_{1,m}} \sdots{3ex} \vox{a_{k,1}, \ldots, a_{k,m}}
-\trans{\arr{sums} \sdots{10ex} \arr{sums}}
+\trans{\arr{lscan} \sdots{10ex} \arr{lscan}}
 \tvox{b_{1,1}, \ldots, b_{1,m}}{b_{1,m+1}} \sdots{3ex} \tvox{b_{k,1}, \ldots, b_{k,m}}{b_{k,m+1}}
 \trans{\arr{merge}}
 \tvox{d_{1,1}, \ldots, d_{1,m}, \ldots, d_{k,1}, \ldots, d_{k,m}}{c_{k+1}} %{d_{k,m+1}}
@@ -475,7 +475,7 @@ where
 \[
 \begin{array}{c}
 \vox{b_{1,m+1},\ldots,b_{k,m+1}}
-\trans{\arr{sums}}
+\trans{\arr{lscan}}
 \tvox{c_1,\ldots,c_k}{c_{k+1}}
 \end{array}
 \]
@@ -648,11 +648,11 @@ Parametrized over container and associative operation.
 
 \framet{In Haskell --- root split}{
 
-> data RT f a = L (f a) | B (T f (T f a))
+> data T f a = L (f a) | B (T f (T f a))
 > 
 > SPACE
 > 
-> instance (Zippy f, LScan f) => LScan (RT f) where
+> instance (Zippy f, LScan f) => LScan (T f) where
 >   lscan (L as)  = first L (lscan as)
 >   lscan (B ts)  = (B (adjust <$> zip (tots',ts')), tot)
 >    where

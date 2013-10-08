@@ -149,7 +149,7 @@ __global__ void prescan(float *g_odata, float *g_idata, int n) {
 \begin{figure}
 \wpicture{2in}{ShadowedPictures/beaker-looks-left}
 
-\hspace{0.75in}\emph{WAT}
+\pause\hspace{0.75in}\emph{WAT}
 \end{figure}
 \end{minipage}
 }
@@ -514,7 +514,7 @@ If $k$ is \emph{fixed}.
 
 \framet{Split inversion}{
 
-Two kinds of $k$-way split:
+Two kinds of split:
 \begin{itemize}
 \item \emph{Top-down} --- $k$ pieces of size $n/k$ each
 \begin{align*}
@@ -527,7 +527,7 @@ W(n) &= k \, W(n/k) + W(k) + O(n) \\
 \emph{Bottom-up} --- $n/k$ pieces of size $k$ each:
 \pause
 \begin{align*}
-W(n) &= (n/k) \, W(k) + W (n/k) + O(n)\\
+W(n) &= (n/k) \, W(k) + W (n/k) + O(n) \\
      &= W (n/k) + O(n) \\
      &= O(n)
 \end{align*}

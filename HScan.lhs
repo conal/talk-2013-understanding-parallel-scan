@@ -120,46 +120,71 @@ Uniform pairs:
 > instance LScan P where
 >   lscan (a :# b) = (mempty :# a, a `mappend` b)
 
+Composition scan:
+
+> lscanGF :: (Functor f, Zippy g, LScan g, LScan f, Monoid a) =>
+>            g (f a) -> (g (f a), a)
+> lscanGF gfa  = (adjust <$> zip (tots',gfa'), tot)
+>  where
+>    (gfa' ,tots)  = unzip (lscan <$> gfa)
+>    (tots',tot)   = lscan tots
+>    adjust (p,t)  = (p `mappend`) <$> t
+
 Scan for top-down trees:
 
+< instance (Zippy f, LScan f) => LScan (T f) where
+<   lscan (L a)   = (L mempty, a)
+<   lscan (B ts)  = (B (adjust <$> zip (tots',ts')), tot)
+<    where
+<      (ts' ,tots)   = unzip (lscan <$> ts)
+<      (tots',tot)   = lscan tots
+<      adjust (p,t)  = (p `mappend`) <$> t
+
 > instance (Zippy f, LScan f) => LScan (T f) where
->   lscan (L a)   = (L mempty, a)
->   lscan (B ts)  = (B (adjust <$> zip (tots',ts')), tot)
->    where
->      (ts' ,tots)   = unzip (lscan <$> ts)
->      (tots',tot)   = lscan tots
->      adjust (p,t)  = (p `mappend`) <$> t
+>   lscan (L a)  = (L mempty, a)
+>   lscan (B w)  = first B (lscanGF w)
 
 Same definition for bottom-up trees (modulo type and constructor names):
 
+< instance (Zippy f, LScan f) => LScan (T' f) where
+<   lscan (L' a)   = (L' mempty, a)
+<   lscan (B' ts)  = (B' (adjust <$> zip (tots',ts')), tot)
+<    where
+<      (ts' ,tots)   = unzip (lscan <$> ts)
+<      (tots',tot)   = lscan tots
+<      adjust (p,t)  = (p `mappend`) <$> t
+
 > instance (Zippy f, LScan f) => LScan (T' f) where
->   lscan (L' a)   = (L' mempty, a)
->   lscan (B' ts)  = (B' (adjust <$> zip (tots',ts')), tot)
->    where
->      (ts' ,tots)   = unzip (lscan <$> ts)
->      (tots',tot)   = lscan tots
->      adjust (p,t)  = (p `mappend`) <$> t
+>   lscan (L' a)  = (L' mempty, a)
+>   lscan (B' w)  = first B' (lscanGF w)
 
 Root split, top-down:
 
 > data RT f a = L'' (f a) | B'' (T f (T f a)) deriving Functor
->
+
+< instance (Zippy f, LScan f) => LScan (RT f) where
+<   lscan (L'' as)  = first L'' (lscan as)
+<   lscan (B'' ts)  = (B'' (adjust <$> zip (tots',ts')), tot)
+<    where
+<      (ts' ,tots)   = unzip (lscan <$> ts)
+<      (tots',tot)   = lscan tots
+<      adjust (p,t)  = (p `mappend`) <$> t
+
 > instance (Zippy f, LScan f) => LScan (RT f) where
 >   lscan (L'' as)  = first L'' (lscan as)
->   lscan (B'' ts)  = (B'' (adjust <$> zip (tots',ts')), tot)
->    where
->      (ts' ,tots)   = unzip (lscan <$> ts)
->      (tots',tot)   = lscan tots
->      adjust (p,t)  = (p `mappend`) <$> t
+>   lscan (B'' w)   = first B'' (lscanGF w)
 
 Generalize to functor composition:
 
+< instance (Functor f, Zippy g, LScan g, LScan f) => LScan (g :. f) where
+<   lscan (O ts)  = (O (adjust <$> zip (tots',ts')), tot)
+<    where
+<      (ts' ,tots)   = unzip (lscan <$> ts)
+<      (tots',tot)   = lscan tots
+<      adjust (p,t)  = (p `mappend`) <$> t
+
 > instance (Functor f, Zippy g, LScan g, LScan f) => LScan (g :. f) where
->   lscan (O ts)  = (O (adjust <$> zip (tots',ts')), tot)
->    where
->      (ts' ,tots)   = unzip (lscan <$> ts)
->      (tots',tot)   = lscan tots
->      adjust (p,t)  = (p `mappend`) <$> t
+>   lscan (O ts)  = first O (lscanGF ts)
 
 Bottom-up:
 
@@ -167,4 +192,4 @@ Bottom-up:
 >
 > instance (Zippy f, LScan f) => LScan (RT' f) where
 >   lscan (L''' as)  = first L''' (lscan as)
->   lscan (B''' t)   = first B''' (lscan t)
+>   lscan (B''' w)   = first B''' (lscan w)

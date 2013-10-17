@@ -767,7 +767,7 @@ Parametrized over container and associative operation.
 >   lscan (L a)  = (L mempty, a)
 >   lscan (B w)  = first B  (lscan w)
 
-\vspace{0.6ex}
+\vspace{0.7ex}
 
 }
 

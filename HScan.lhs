@@ -122,8 +122,8 @@ Uniform pairs:
 
 Composition scan:
 
-> lscanGF :: (Functor f, Zippy g, LScan g, LScan f, Monoid a) =>
->            g (f a) -> (g (f a), a)
+> lscanGF ::  (Functor f, Zippy g, LScan g, LScan f, Monoid a) =>
+>             g (f a) -> (g (f a), a)
 > lscanGF gfa  = (adjust <$> zip (tots',gfa'), tot)
 >  where
 >    (gfa' ,tots)  = unzip (lscan <$> gfa)

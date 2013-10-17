@@ -1,48 +1,23 @@
 %% Misc lhs2TeX directives
 
-%format :-* = "\multimap"
-
-%format *** = "\mathbin{\times}"
-%format &&& = "\mathbin{\smalltriangleup}"
-%format ||| = "\mathbin{\smalltriangledown}"
-
-%% %format *** = "\symThree{*}"
-%% %format &&& = "\symThree{\&}"
-%% %format ||| = "\symThree{|}"
-
-%% %format Real = "\Re"
-%format Real = " \mathbb{R} "
-%format R  = Real
-
-%format Rm = R "^ m"
-%format Rn = R "^ n"
-
-%format * = " \times "
-
 %format Unit = " \mathbf{1} "
 %% %format Unit = " \mathbbm{1} "
 %format :* = " \times "
 %format :+ = " + "
 
+%format :*: = " \times "
+%format :+: = " + "
+
 %format `mappend` = " \mathbin{\oplus} "
 %format mempty = " \emptyset "
 
-%% optional double-dollar spelling, to avoid $ confusing emacs latex-mode.
-%format <$$> = <$>
-
 %format <$> = "\mathbin{<\!\!\!\$\!\!\!>}"
 
-% %format :->: = "\mathrel{{\to}_{M}}"
-%format :->: = "\mathrel{{\to}^{M}}"
-% %format :->: = "\mathrel{\stackrel{M}{\to}}"
+% %format :. = "\, {\mathbin{:\!\!\circ}}\, "
+%format :. = "\circ"
 
-%format :&& = "\mathbin{:\!\!" &&& "}"
-
-%format VS2 = "VS_2"
-%format VS3 = "VS_3"
-%format VS4 = "VS_4"
-
-%format (apply (t)) = "\db{" t "}"
+%% optional double-dollar spelling, to avoid $ confusing emacs latex-mode.
+%format <$$> = <$>
 
 
 % Got from Andres L:
@@ -56,27 +31,9 @@
 \newcommand{\mplus}{\mathbin{+}}
 % \newcommand{\mplus}{\mathbin{\hat{+}}}
 
-%format ^+^ = "\mplus"
-%format *^ = " \cdot "
-
-%format zeroV = 0
-%format negateV = negate
-
 %format ~> = "\leadsto"
-
-%format Minf = "- \infty"
 
 %% hack: add missing space, e.g., before "{" in data type decl
 %format SPACE = "\ {}"
 
-% \newcommand{\mmult}{\odot}
-\newcommand{\mmult}{\bullet}
-%format .@ = "\mmult"
-
 % \renewcommand{\onelinecomment}{\it}
-
-%format =~ = "\simeq"
-%format /\ = "\Lambda"
-
-%format zipWith2 = "\Varid{zip\!With_2}"
-%format unzipWith2 = "\Varid{unzip\!With_2}"

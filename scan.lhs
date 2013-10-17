@@ -1,5 +1,7 @@
 %% -*- latex -*-
 
+%% %let atwork = True
+
 % Presentation
 \documentclass{beamer}
 
@@ -40,9 +42,13 @@
 %include greek.fmt
 %include mine.fmt
 
+%if atwork
 % \title{High-level algorithm design for reschedulable computation, Part 1}
 \title{High-level algorithm design\\ for reschedulable computation}
 \subtitle{Part 1: Efficient parallel scan} % Understanding 
+%else
+\title{Understanding efficient parallel scan} % 
+%endif
 \author{\href{http://conal.net}{Conal Elliott}}
 \institute{\href{http://tabula.com/}{Tabula}}
 % Abbreviate date/venue to fit in infolines space
@@ -662,6 +668,8 @@ Parametrized over container and associative operation.
 
 }
 
+%if atwork
+
 \framet{Reflections}{
 \begin{itemize} \itemsep 1.5em
 \item Reschedulable computing needs new languages and techniques.
@@ -673,6 +681,154 @@ Parametrized over container and associative operation.
 \pitem Reduce other dependencies via equational reasoning.
 \pitem Associativity matters.
 \end{itemize}
+}
+
+%else
+\framet{The commonality -- type composition}{
+
+> lscanGF ::  (Functor f, Zippy g, LScan g, LScan f, Monoid a) =>
+>             g (f a) -> (g (f a), a)
+> lscanGF gfa  = (adjust <$> zip (tots',gfa'), tot)
+>  where
+>    (gfa' ,tots)  = unzip (lscan <$> gfa)
+>    (tots',tot)   = lscan tots
+>    adjust (p,t)  = (p `mappend`) <$> t
+
+}
+
+
+\framet{Top-down trees}{
+
+> data T f a = L a | B (f (T f a))
+>
+> SPACE
+>
+> instance (Zippy f, LScan f) => LScan (T f) where
+>   lscan (L a)  = (L mempty, a)
+>   lscan (B w)  = first B (lscanGF w)
+
+}
+
+
+\framet{Bottom-up trees}{
+
+> data T f a = L a | B (T f (f a))
+>
+> SPACE
+>
+> instance (Zippy f, LScan f) => LScan (T f) where
+>   lscan (L a)  = (L mempty, a)
+>   lscan (B w)  = first B (lscanGF w)
+
+}
+
+\framet{Root split -- top-down}{
+
+> data T f a = L (f a) | B (T f (T f a))
+>
+> SPACE
+>
+> instance (Zippy f, LScan f) => LScan (T f) where
+>   lscan (L as)  = first L  (lscan as)
+>   lscan (B w)   = first B  (lscanGF w)
+
+}
+
+\framet{Type composition, explicitly}{
+
+> newtype (g :. f) a = O (g (f a))
+
+\pause
+
+> instance  (Functor f, Zippy g, LScan g, LScan f) =>
+>           LScan (g :. f) where
+>   lscan (O ts)  = (O (adjust <$> zip (tots',gfa')), tot)
+>    where
+>      (gfa' ,tots)  = unzip (lscan <$> gfa)
+>      (tots',tot)   = lscan tots
+>      adjust (p,t)  = (p `mappend`) <$> t
+
+}
+
+\framet{Trees with explicit composition}{
+
+> data T f a = L   a    | B ((f :. T f)    a)  -- top-down f-tree
+>
+> data T f a = L   a    | B ((T f :. f)    a)  -- bottom-up f-tree
+>
+> data T f a = L (f a)  | B ((T f :. T f)  a)  -- top-down root f-tree
+>
+> data T f a = L (f a)  | B (T (f :. f)    a)  -- bottom-up root f-tree
+
+\pause
+|f|-trees:
+
+> instance (Zippy f, LScan f) => LScan (RT f) where
+>   lscan (L a)  = (L mempty, a)
+>   lscan (B w)  = first B  (lscan w)
+
+\vspace{0.6ex}
+
+}
+
+\framet{Trees with explicit composition}{
+
+> data T f a = L   a    | B ((f :. T f)    a)  -- top-down f-tree
+>
+> data T f a = L   a    | B ((T f :. f)    a)  -- bottom-up f-tree
+>
+> data T f a = L (f a)  | B ((T f :. T f)  a)  -- top-down root f-tree
+>
+> data T f a = L (f a)  | B (T (f :. f)    a)  -- bottom-up root f-tree
+
+Root |f|-trees:
+
+> instance (Zippy f, LScan f) => LScan (RT f) where
+>   lscan (L as)  = first L  (lscan as)
+>   lscan (B w)   = first B  (lscan w)
+
+\pause
+The bottom-up trees are \emph{perfect} -- $f^n$ and $f^{f^n}$.
+
+}
+
+%endif
+
+\framet{Data structure tinker toys}{
+
+\begin{minipage}[c]{0.68\textwidth}
+
+> newtype  Const b      a  = Const b
+> newtype  Id           a  = Id a
+> data     (f  :*:  g)  a  = f a :*: g a
+> data     (f  :+:  g)  a  = InL (f a) | InR (g a)
+> newtype  (g  :.   f)  a  = O (g (f a))
+
+%% \vspace{-15ex}
+
+\ 
+
+\pause
+Each has an |LScan| instance.
+
+\ 
+
+Parallel scan for many data structures.
+
+\ 
+
+See post: \href{http://conal.net/blog/posts/composable-parallel-scanning}{\emph{Composable
+parallel scanning}}.
+
+\end{minipage}
+\begin{minipage}[c]{0.3\textwidth}
+\wpicture{1.5in}{Pictures/tinker-toy-bird}
+\end{minipage}
+
+\pause\ 
+
+General approach to algorithm development?
+
 }
 
 \end{document}

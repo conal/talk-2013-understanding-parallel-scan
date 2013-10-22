@@ -28,6 +28,8 @@
 \usepackage{color}
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
 
+\usepackage{wasysym}
+
 \useinnertheme[shadow]{rounded}
 % \useoutertheme{default}
 \useoutertheme{shadow}
@@ -248,7 +250,7 @@ Linear \emph{dependency chain} thwarts parallelism (depth $<$ work).
 }
 
 \framet{Depth analysis}{
-Depends on cost of splitting and merging.
+Depends on depth of splitting and merging.
 \begin{itemize}
 \pitem Constant:
  \begin{align*}
@@ -685,20 +687,16 @@ Parametrized over container and associative operation.
 
 %else
 \framet{The commonality -- type composition}{
-
-> lscanGF ::  (Functor f, Zippy g, LScan g, LScan f, Monoid a) =>
+> lscanGF ::  (Zippy g, LScan g, LScan f, Monoid a) =>
 >             g (f a) -> (g (f a), a)
 > lscanGF gfa  = (adjust <$> zip (tots',gfa'), tot)
 >  where
 >    (gfa' ,tots)  = unzip (lscan <$> gfa)
 >    (tots',tot)   = lscan tots
 >    adjust (p,t)  = (p `mappend`) <$> t
-
 }
 
-
 \framet{Top-down trees}{
-
 > data T f a = L a | B (f (T f a))
 >
 > SPACE
@@ -706,12 +704,9 @@ Parametrized over container and associative operation.
 > instance (Zippy f, LScan f) => LScan (T f) where
 >   lscan (L a)  = (L mempty, a)
 >   lscan (B w)  = first B (lscanGF w)
-
 }
 
-
 \framet{Bottom-up trees}{
-
 > data T f a = L a | B (T f (f a))
 >
 > SPACE
@@ -719,11 +714,9 @@ Parametrized over container and associative operation.
 > instance (Zippy f, LScan f) => LScan (T f) where
 >   lscan (L a)  = (L mempty, a)
 >   lscan (B w)  = first B (lscanGF w)
-
 }
 
 \framet{Root split -- top-down}{
-
 > data T f a = L (f a) | B (T f (T f a))
 >
 > SPACE
@@ -731,27 +724,23 @@ Parametrized over container and associative operation.
 > instance (Zippy f, LScan f) => LScan (T f) where
 >   lscan (L as)  = first L  (lscan as)
 >   lscan (B w)   = first B  (lscanGF w)
-
 }
 
 \framet{Type composition, explicitly}{
-
-> newtype (g :. f) a = O (g (f a))
+> newtype (g :. f) a = Comp (g (f a))
 
 \pause
 
-> instance  (Functor f, Zippy g, LScan g, LScan f) =>
+> instance  (Zippy g, LScan g, LScan f) =>
 >           LScan (g :. f) where
->   lscan (O ts)  = (O (adjust <$> zip (tots',gfa')), tot)
+>   lscan (Comp ts)  = (Comp (adjust <$> zip (tots',gfa')), tot)
 >    where
 >      (gfa' ,tots)  = unzip (lscan <$> gfa)
 >      (tots',tot)   = lscan tots
 >      adjust (p,t)  = (p `mappend`) <$> t
-
 }
 
 \framet{Trees with explicit composition}{
-
 > data T f a = L   a    | B ((f :. T f)    a)  -- top-down f-tree
 >
 > data T f a = L   a    | B ((T f :. f)    a)  -- bottom-up f-tree
@@ -768,11 +757,9 @@ Parametrized over container and associative operation.
 >   lscan (B w)  = first B  (lscan w)
 
 \vspace{0.7ex}
-
 }
 
 \framet{Trees with explicit composition}{
-
 > data T f a = L   a    | B ((f :. T f)    a)  -- top-down f-tree
 >
 > data T f a = L   a    | B ((T f :. f)    a)  -- bottom-up f-tree
@@ -789,20 +776,56 @@ Root |f|-trees:
 
 \pause
 The bottom-up trees are \emph{perfect} -- $f^n$ and $f^{f^n}$.
+}
+
+%if false
+
+\framet{Trees via functor building blocks}{
+> type T f = Id  :+: f :. T f    -- top-down f-tree
+>
+> type T f = Id  :+: T f :. f    -- bottom-up f-tree
+>
+> type T f = f   :+: T f :. T f  -- top-down root f-tree
+>
+> type T f = f   :+: T (f :. f)  -- bottom-up root f-tree
+
+> type Pair = Id :*: Id
+
+\pause\ 
+
+No (additional) code! \textcolor{green}{\smiley}
+
+\pause
+
+Not quite legal Haskell. \textcolor{red}{\frownie}
+
+}
+
+\framet{Trees via functor building blocks}{
+
+Legal Haskell:
+
+> newtype T f a = T ((Id  :+: f :. T f  ) a)  -- top-down f-tree
+> 
+> newtype T f a = T ((Id  :+: T f :. f  ) a)  -- bottom-up f-tree
+> 
+> newtype T f a = T ((f   :+: T f :. T f) a)  -- top-down root f-tree
+> 
+> newtype T f a = T ((f   :+: T (f :. f)) a)  -- bottom-up root f-tree
+
+> type Pair = Id :*: Id
 
 }
 
 %endif
 
 \framet{Data structure tinker toys}{
-
 \begin{minipage}[c]{0.68\textwidth}
-
-> newtype  Const b      a  = Const b
-> newtype  Id           a  = Id a
-> data     (f  :*:  g)  a  = f a :*: g a
-> data     (f  :+:  g)  a  = InL (f a) | InR (g a)
-> newtype  (g  :.   f)  a  = O (g (f a))
+> newtype  Const b      a = Const b
+> newtype  Id           a = Id a
+> data     (f  :*:  g)  a = Prod  (f a :* g a)
+> data     (f  :+:  g)  a = Sum   (f a :+ g a)
+> newtype  (g  :.   f)  a = Comp  (g (f a))
 
 %% \vspace{-15ex}
 
@@ -827,8 +850,41 @@ parallel scanning}}.
 
 \pause\ 
 
-General approach to algorithm development?
+%% General approach to algorithm development?
+
+Similar algorithm decompositions?
 
 }
+
+%endif
+
+%if not atwork
+
+\framet{Reflections on parallelism and programming}{
+\begin{itemize} \itemsep 0.5em \parskip 0.5em
+\item
+  Mainstream languages are deeply sequential.
+\pitem
+  Tempting to add parallelism\pause, but
+  \begin{itemize} \itemsep 0.5em
+  \item
+    Correctness gets even harder.
+  \item
+    Still more implementation detail.
+  \end{itemize}
+\pitem
+  We no longer manually place in space, but still place in time.
+\pitem
+  Alternative: remove \emph{all} temporal constraints.
+  \begin{itemize} \itemsep 0.5em
+   \pitem
+    Automatic placement in space-time.
+   \pitem \emph{Out:} sequencing, threads, mutation.
+   \pitem \emph{In:} math, functional programming.
+ \end{itemize}
+\end{itemize}
+}
+
+%endif
 
 \end{document}

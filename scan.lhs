@@ -870,7 +870,7 @@ Similar algorithm decompositions?
   \item
     Correctness gets even harder.
   \item
-    Still more implementation detail.
+    Compounds implementation detail.
   \end{itemize}
 \pitem
   We no longer manually place in space, but still place in time.

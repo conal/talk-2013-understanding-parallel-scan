@@ -1,4 +1,4 @@
-TARG = scan
+TARG = understanding-parallel-scan
 
 .PRECIOUS: %.tex %.pdf %.web
 
@@ -35,7 +35,7 @@ STASH=conal@conal.net:/home/conal/web/talks
 web: web-token
 
 web-token: $(TARG).pdf
-	scp $? $(STASH)/understanding-parallel-scan.pdf
+	scp $? $(STASH)/
 	touch $@
 
 #  $(TARG).lhs HScan.lhs

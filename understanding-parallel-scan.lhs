@@ -686,6 +686,8 @@ Parametrized over container and associative operation.
 }
 
 %else
+
+%if false
 \framet{The commonality -- type composition}{
 > lscanGF ::  (Zippy g, LScan g, LScan f, Monoid a) =>
 >             g (f a) -> (g (f a), a)
@@ -726,13 +728,14 @@ Parametrized over container and associative operation.
 >   lscan (B w)   = first B  (lscanGF w)
 }
 
-\framet{Type composition, explicitly}{
+%endif
+
+\framet{Type composition}{
 > newtype (g :. f) a = Comp (g (f a))
 
 \pause
 
-> instance  (Zippy g, LScan g, LScan f) =>
->           LScan (g :. f) where
+> instance  (Zippy g, LScan g, LScan f) => LScan (g :. f) where
 >   lscan (Comp ts)  = (Comp (adjust <$> zip (tots',gfa')), tot)
 >    where
 >      (gfa' ,tots)  = unzip (lscan <$> gfa)

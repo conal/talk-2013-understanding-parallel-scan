@@ -778,7 +778,7 @@ Root |f|-trees:
 >   lscan (B w)   = first B  (lscan w)
 
 \pause
-The bottom-up trees are \emph{perfect} -- $f^n$ and $f^{f^n}$.
+The bottom-up trees are \emph{perfect} -- $f^n$ and $f^{2^n}$.
 }
 
 %if false

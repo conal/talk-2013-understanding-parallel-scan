@@ -883,7 +883,7 @@ Similar algorithm decompositions?
    \pitem
     Automatic placement in space-time.
    \pitem \emph{Out:} sequencing, threads, mutation.
-   \pitem \emph{In:} math, functional programming.
+   \pitem \emph{In:} math, denotative (``genuinely functional'') programming.
  \end{itemize}
 \end{itemize}
 }

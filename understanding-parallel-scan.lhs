@@ -55,7 +55,8 @@
 \institute{\href{http://tabula.com/}{Tabula}}
 % Abbreviate date/venue to fit in infolines space
 %% \date{\href{http://www.meetup.com/haskellhackersathackerdojo/events/132372202/}{October 24, 2013}}
-\date{October, 2013}
+%% \date{October, 2013}
+\date{March, 2014}
 
 \setlength{\itemsep}{2ex}
 \setlength{\parskip}{1ex}
@@ -148,7 +149,7 @@ __global__ void prescan(float *g_odata, float *g_idata, int n) {
     g_odata[2*thid+1] = temp[2*thid+1]; }
 \end{verbatim}
 \vspace{-6ex}
-\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{\emph{Source: GPU Gems 3, Chapter 39}}
+\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{\emph{Source: Harris, Sengupta, and Owens in GPU Gems 3, Chapter 39}}
 \normalsize
 \end{minipage}
 \hspace{-1in}
@@ -157,9 +158,30 @@ __global__ void prescan(float *g_odata, float *g_idata, int n) {
 \begin{figure}
 \wpicture{2in}{ShadowedPictures/beaker-looks-left}
 
-\pause\hspace{0.75in}\emph{WAT}
+%%\pause
+\hspace{0.75in}\emph{WAT}
 \end{figure}
 \end{minipage}
+}
+
+\framet{In NESL}{
+\begin{quote}
+\begin{verbatim}
+function scan(a) =
+if #a == 1 then [0]
+else
+  let es = even_elts(a);
+      os = odd_elts(a);
+      ss = scan({e+o: e in es; o in os})
+  in interleave(ss,{s+e: s in ss; e in es})
+\end{verbatim}
+\end{quote}
+\vspace{4ex}
+{\tiny
+\href{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.53.5739}{Source: Guy Blelloch in \emph{Programming parallel algorithms, 1990}}}
+
+\pause\vspace{3ex}
+Still, why does it work?
 }
 
 \framet{Prefix sum (left scan)}{
@@ -599,7 +621,7 @@ __global__ void prescan(float *g_odata, float *g_idata, int n) {
     g_odata[2*thid+1] = temp[2*thid+1]; }
 \end{verbatim}
 \vspace{-6ex}
-\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{\emph{Source: GPU Gems 3, Chapter 39}}
+\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{\emph{Source: Harris, Sengupta, and Owens in GPU Gems 3, Chapter 39}}
 \normalsize
 \end{minipage}
 \hspace{-1in}
@@ -613,8 +635,8 @@ __global__ void prescan(float *g_odata, float *g_idata, int n) {
 
 \framet{In Haskell --- generalized left scan}{
 
-> class LScan f where
->   lscan :: Monoid a => f a -> (f a, a)
+> class LScan c where
+>   lscan :: Monoid a => c a -> (c a, a)
 
 \vspace{2ex}
 
@@ -876,7 +898,7 @@ Similar algorithm decompositions?
     Compounds implementation detail.
   \end{itemize}
 \pitem
-  We no longer manually place in space, but still place in time.
+  We no longer manually place in space\pause, but \emph{we still place in time}.
 \pitem
   Alternative: remove \emph{all} temporal constraints.
   \begin{itemize} \itemsep 0.5em

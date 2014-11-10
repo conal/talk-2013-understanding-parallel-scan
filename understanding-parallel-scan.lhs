@@ -149,7 +149,7 @@ __global__ void prescan(float *g_odata, float *g_idata, int n) {
     g_odata[2*thid+1] = temp[2*thid+1]; }
 \end{verbatim}
 \vspace{-6ex}
-\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{\emph{Source: Harris, Sengupta, and Owens in GPU Gems 3, Chapter 39}}
+\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{Source: Harris, Sengupta, and Owens in \emph{GPU Gems 3}, Chapter 39}
 \normalsize
 \end{minipage}
 \hspace{-1in}
@@ -621,7 +621,7 @@ __global__ void prescan(float *g_odata, float *g_idata, int n) {
     g_odata[2*thid+1] = temp[2*thid+1]; }
 \end{verbatim}
 \vspace{-6ex}
-\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{\emph{Source: Harris, Sengupta, and Owens in GPU Gems 3, Chapter 39}}
+\href{http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html}{Source: Harris, Sengupta, and Owens in \emph{GPU Gems 3}, Chapter 39}
 \normalsize
 \end{minipage}
 \hspace{-1in}
@@ -758,11 +758,11 @@ Parametrized over container and associative operation.
 \pause
 
 > instance  (Zippy g, LScan g, LScan f) => LScan (g :. f) where
->   lscan (Comp ts)  = (Comp (adjust <$> zip (tots',gfa')), tot)
+>   lscan (Comp gfa)  = (Comp (adjust <$> zip (tots',gfa')), tot)
 >    where
->      (gfa' ,tots)  = unzip (lscan <$> gfa)
->      (tots',tot)   = lscan tots
->      adjust (p,t)  = (p `mappend`) <$> t
+>      (gfa' ,tots)    = unzip (lscan <$> gfa)
+>      (tots',tot)     = lscan tots
+>      adjust (p,fa')  = (p `mappend`) <$> fa'
 }
 
 \framet{Trees with explicit composition}{
@@ -777,11 +777,11 @@ Parametrized over container and associative operation.
 \pause
 |f|-trees:
 
-> instance (Zippy f, LScan f) => LScan (RT f) where
+> instance (Zippy f, LScan f) => LScan (T f) where
 >   lscan (L a)  = (L mempty, a)
 >   lscan (B w)  = first B  (lscan w)
 
-\vspace{0.7ex}
+\vspace{0.45ex}
 }
 
 \framet{Trees with explicit composition}{
@@ -795,7 +795,7 @@ Parametrized over container and associative operation.
 
 Root |f|-trees:
 
-> instance (Zippy f, LScan f) => LScan (RT f) where
+> instance (Zippy f, LScan f) => LScan (T f) where
 >   lscan (L as)  = first L  (lscan as)
 >   lscan (B w)   = first B  (lscan w)
 

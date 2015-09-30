@@ -52,11 +52,12 @@
 \title{Understanding efficient parallel scan} % 
 %endif
 \author{\href{http://conal.net}{Conal Elliott}}
-\institute{\href{http://tabula.com/}{Tabula}}
+% \institute{\href{http://tabula.com/}{Tabula}}
 % Abbreviate date/venue to fit in infolines space
 %% \date{\href{http://www.meetup.com/haskellhackersathackerdojo/events/132372202/}{October 24, 2013}}
 %% \date{October, 2013}
-\date{March, 2014}
+%% \date{March 2014\\Updated September 2015}
+\date{March 2014}
 
 \setlength{\itemsep}{2ex}
 \setlength{\parskip}{1ex}
@@ -93,6 +94,7 @@
 \frame{\titlepage}
 
 \title{Efficient parallel scan}
+\date{rev 2015-09-30}
 
 \framet{Prefix sum (left scan)}{
 \begin{center}
@@ -753,7 +755,7 @@ Parametrized over container and associative operation.
 %endif
 
 \framet{Type composition}{
-> newtype (g :. f) a = Comp (g (f a))
+> data (g :. f) a = Comp (g (f a))
 
 \pause
 
@@ -830,13 +832,13 @@ Not quite legal Haskell. \textcolor{red}{\frownie}
 
 Legal Haskell:
 
-> newtype T f a = T ((Id  :+: f :. T f  ) a)  -- top-down f-tree
+> data T f a = T ((Id  :+: f :. T f  ) a)  -- top-down f-tree
 > 
-> newtype T f a = T ((Id  :+: T f :. f  ) a)  -- bottom-up f-tree
+> data T f a = T ((Id  :+: T f :. f  ) a)  -- bottom-up f-tree
 > 
-> newtype T f a = T ((f   :+: T f :. T f) a)  -- top-down root f-tree
+> data T f a = T ((f   :+: T f :. T f) a)  -- top-down root f-tree
 > 
-> newtype T f a = T ((f   :+: T (f :. f)) a)  -- bottom-up root f-tree
+> data T f a = T ((f   :+: T (f :. f)) a)  -- bottom-up root f-tree
 
 > type Pair = Id :*: Id
 
@@ -844,13 +846,72 @@ Legal Haskell:
 
 %endif
 
+\framet{Top-down, depth 2}{
+\vspace{-4ex}
+\wfig{4.5in}{circuits/lsums-rt2-no-opt}
+}
+
+\framet{Top-down, depth 2, optimized}{
+\vspace{-4ex}
+\wfig{5in}{circuits/lsums-rt2}
+}
+
+\framet{Top-down, depth 3}{
+\vspace{-4ex}
+\wfig{3.5in}{circuits/lsums-rt3-no-opt}
+}
+
+\framet{Top-down, depth 3, optimized}{
+\vspace{-6ex}
+\wfig{4.8in}{circuits/lsums-rt3}
+}
+
+\framet{Top-down, depth 4, optimized}{
+\vspace{-4ex}
+\wfig{4.5in}{circuits/lsums-rt4}
+}
+
+\framet{Top-down, depth 5, optimized}{
+\vspace{-2.8ex}
+\wfig{3.8in}{circuits/lsums-rt5}
+}
+
+\framet{Bottom-up, depth 3}{
+\vspace{-4.2ex}
+\wfig{4.8in}{circuits/lsums-lt3-no-opt}
+}
+
+\framet{Bottom-up, depth 3, optimized}{
+\vspace{-6ex}
+\wfig{4.8in}{circuits/lsums-lt3}
+}
+
+\framet{Bottom-up, depth 4, optimized}{
+\vspace{-4ex}
+\wfig{4.5in}{circuits/lsums-lt4}
+}
+
 \framet{Data structure tinker toys}{
+\pause
 \begin{minipage}[c]{0.68\textwidth}
-> newtype  Const b      a = Const b
-> newtype  Id           a = Id a
-> data     (f  :*:  g)  a = Prod  (f a :* g a)
-> data     (f  :+:  g)  a = Sum   (f a :+ g a)
-> newtype  (g  :.   f)  a = Comp  (g (f a))
+
+%if false
+
+> data  Const b      a = Const b
+> data  Id           a = Id a
+> data  (f  :*:  g)  a = Prod  (f a :* g a)
+> data  (f  :+:  g)  a = Sum   (f a :+ g a)
+> data  (g  :.   f)  a = Comp  (g (f a))
+
+%else
+
+> data  Const b      a = Const b
+> data  Id           a = Id a
+> data  (f  :*:  g)  a = Prod (f a) (g a)
+> data  (f  :+:  g)  a = InL (f a) | InR (g a)
+> data  (g  :.   f)  a = Comp (g (f a))
+
+%endif
 
 %% \vspace{-15ex}
 
@@ -883,7 +944,7 @@ Similar algorithm decompositions?
 
 %endif
 
-%if not atwork
+%if false
 
 \framet{Reflections on parallelism and programming}{
 \begin{itemize} \itemsep 0.5em \parskip 0.5em

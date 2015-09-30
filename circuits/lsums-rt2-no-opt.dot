@@ -1,0 +1,47 @@
+digraph lsums_rt2_no_opt {
+  rankdir=LR;
+  node [shape=Mrecord];
+  bgcolor=transparent;
+  nslimit=20;
+  ranksep="1.25";
+  c0 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c1 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c2 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c3 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c4 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c5 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c6 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c7 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c8 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c9 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c10 [label="{0|{<Out0>}}"];
+  c11 [label="{In|{<Out0>|<Out1>|<Out2>|<Out3>}}"];
+  c12 [label="{{<In0>|<In1>|<In2>|<In3>|<In4>}|Out}"];
+  c11:Out0 -> c0:In0;
+  c11:Out1 -> c0:In1;
+  c11:Out0 -> c1:In0;
+  c10:Out0 -> c1:In1;
+  c11:Out2 -> c2:In0;
+  c11:Out3 -> c2:In1;
+  c11:Out2 -> c3:In0;
+  c10:Out0 -> c3:In1;
+  c10:Out0 -> c4:In0;
+  c10:Out0 -> c4:In1;
+  c10:Out0 -> c5:In0;
+  c4:Out0 -> c5:In1;
+  c10:Out0 -> c6:In0;
+  c1:Out0 -> c6:In1;
+  c0:Out0 -> c7:In0;
+  c4:Out0 -> c7:In1;
+  c0:Out0 -> c8:In0;
+  c3:Out0 -> c8:In1;
+  c0:Out0 -> c9:In0;
+  c2:Out0 -> c9:In1;
+  c5:Out0 -> c12:In0;
+  c6:Out0 -> c12:In1;
+  c7:Out0 -> c12:In2;
+  c8:Out0 -> c12:In3;
+  c9:Out0 -> c12:In4;
+}
+
+// Components: 10 +, 1 0, 11 total. Max depth: 2.

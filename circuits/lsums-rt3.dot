@@ -1,0 +1,57 @@
+digraph lsums_rt3 {
+  rankdir=LR;
+  node [shape=Mrecord];
+  bgcolor=transparent;
+  nslimit=20;
+  ranksep="1.5";
+  c0 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c1 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c2 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c3 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c4 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c5 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c6 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c7 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c8 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c9 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c10 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c11 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c12 [label="{0|{<Out0>}}"];
+  c13 [label="{In|{<Out0>|<Out1>|<Out2>|<Out3>|<Out4>|<Out5>|<Out6>|<Out7>}}"];
+  c14 [label="{{<In0>|<In1>|<In2>|<In3>|<In4>|<In5>|<In6>|<In7>|<In8>}|Out}"];
+  c13:Out0 -> c0:In0;
+  c13:Out1 -> c0:In1;
+  c13:Out2 -> c1:In0;
+  c13:Out3 -> c1:In1;
+  c13:Out2 -> c2:In0;
+  c0:Out0 -> c2:In1;
+  c13:Out4 -> c3:In0;
+  c13:Out5 -> c3:In1;
+  c13:Out4 -> c4:In0;
+  c7:Out0 -> c4:In1;
+  c13:Out6 -> c5:In0;
+  c13:Out7 -> c5:In1;
+  c13:Out6 -> c6:In0;
+  c3:Out0 -> c6:In1;
+  c0:Out0 -> c7:In0;
+  c1:Out0 -> c7:In1;
+  c7:Out0 -> c8:In0;
+  c3:Out0 -> c8:In1;
+  c7:Out0 -> c9:In0;
+  c6:Out0 -> c9:In1;
+  c7:Out0 -> c10:In0;
+  c11:Out0 -> c10:In1;
+  c3:Out0 -> c11:In0;
+  c5:Out0 -> c11:In1;
+  c12:Out0 -> c14:In0;
+  c13:Out0 -> c14:In1;
+  c0:Out0 -> c14:In2;
+  c2:Out0 -> c14:In3;
+  c7:Out0 -> c14:In4;
+  c4:Out0 -> c14:In5;
+  c8:Out0 -> c14:In6;
+  c9:Out0 -> c14:In7;
+  c10:Out0 -> c14:In8;
+}
+
+// Components: 12 +, 1 0, 13 total. Max depth: 3.

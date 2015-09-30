@@ -1,0 +1,24 @@
+digraph lsums_lt1_no_opt {
+  rankdir=LR;
+  node [shape=Mrecord];
+  bgcolor=transparent;
+  nslimit=20;
+  ranksep="0.75";
+  c0 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c1 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c2 [label="{{<In0>|<In1>}|+|{<Out0>}}"];
+  c3 [label="{0|{<Out0>}}"];
+  c4 [label="{In|{<Out0>|<Out1>}}"];
+  c5 [label="{{<In0>|<In1>|<In2>}|Out}"];
+  c4:Out0 -> c0:In0;
+  c4:Out1 -> c0:In1;
+  c3:Out0 -> c1:In0;
+  c4:Out0 -> c1:In1;
+  c3:Out0 -> c2:In0;
+  c3:Out0 -> c2:In1;
+  c2:Out0 -> c5:In0;
+  c1:Out0 -> c5:In1;
+  c0:Out0 -> c5:In2;
+}
+
+// Components: 3 +, 1 0, 4 total. Max depth: 1.

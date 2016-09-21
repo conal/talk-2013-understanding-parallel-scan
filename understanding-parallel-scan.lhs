@@ -57,7 +57,7 @@
 %% \date{\href{http://www.meetup.com/haskellhackersathackerdojo/events/132372202/}{October 24, 2013}}
 %% \date{October, 2013}
 %% \date{March 2014\\Updated September 2015}
-\date{March 2014}
+%% \date{March 2014}
 
 \setlength{\itemsep}{2ex}
 \setlength{\parskip}{1ex}
@@ -643,6 +643,26 @@ __global__ void prescan(float *g_odata, float *g_idata, int n) {
 \vspace{2ex}
 
 Parametrized over container and associative operation.
+
+}
+
+\framet{Binary trees in Haskell}{
+
+> data T a = L a | B (T a) (T a)
+
+\pause
+Alternatively,
+
+> data T a = L a | B (Pair (T a))
+
+where
+
+> data Pair a = a :# a
+
+\pause
+Generalize from pairs:
+
+> data T f a = L a | B (f (T a))
 
 }
 
